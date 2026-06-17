@@ -210,6 +210,11 @@ export interface IRequestSuccessCallbackBaseResult {
     data: string | object | ArrayBuffer;
 
     /**
+     * 开发者服务器返回的 cookies，格式为字符串数组
+     */
+    cookies?: string[];
+
+    /**
      * 开发者服务器返回的 HTTP 状态码
      */
     statusCode: number;
@@ -231,11 +236,6 @@ export interface IRequestSuccessCallbackBaseResult {
 }
 
 export interface IRequestSuccessCallbackResult extends IGeneralCallbackResult, IRequestSuccessCallbackBaseResult {
-    /**
-     * 开发者服务器返回的 cookies，格式为字符串数组
-     */
-    cookies: string[];
-
     /**
      * 网络请求过程中一些调试信息。目前仅 iOS 和 Android 端支持，其他端暂不支持。
      */

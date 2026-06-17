@@ -52,6 +52,11 @@ const enum XHRCycle {
 const mp = { request: getRequest() };
 export function setRequest(request: unknown) { mp.request = request as TRequestFunc; }
 
+export const CookieUtils = {
+    get: null as null | ((url: string, withCredentials?: boolean) => string),
+    set: null as null | ((url: string, cookies: string | string[]) => void),
+}
+
 export class XMLHttpRequestP extends XMLHttpRequestEventTargetP implements XMLHttpRequest {
     static get UNSENT(): 0 { return 0; }
     static get OPENED(): 1 { return 1; }
@@ -190,6 +195,10 @@ export class XMLHttpRequestP extends XMLHttpRequestEventTargetP implements XMLHt
             success: requestSuccess.bind(this, requestId),
             fail: requestFail.bind(this, requestId),
         };
+
+        if (CookieUtils.get) {
+            (options.header as Record<string, string>)["Cookie"] = CookieUtils.get(options.url, this.withCredentials);
+        }
 
         const payload = (s.method !== "GET" && s.method !== "HEAD" && body !== null && body !== undefined) && new Payload(body as XMLHttpRequestBodyInit);
         if (payload && payload.type && !s.requestHeaders!.has("Content-Type")) { (options.header as Record<string, string>)["Content-Type"] = payload.type; }
@@ -478,6 +487,12 @@ function execHeadersReceived(xhr: XMLHttpRequestP, res: IRequestSuccessCallbackB
     s.responseURL = s.requestURL;
     s.status = "statusCode" in res ? res.statusCode : "status" in res ? (res as IRequestSuccessCallbackBaseResult).status! : 200;
     s.responseHeaders = new Headers(("header" in res ? res.header : "headers" in res ? (res as IRequestSuccessCallbackBaseResult).headers! : {}) as Record<string, string>);
+
+    if (CookieUtils.set) {
+        const cookies = ("cookies" in res && Array.isArray(res.cookies)) ? res.cookies : (s.responseHeaders.get("Set-Cookie") || "");
+        CookieUtils.set(xhr.responseURL, cookies);
+    }
+
     setReadyStateAndNotify(xhr, 2 /* HEADERS_RECEIVED */);
     execLoading(xhr, res);
 }
