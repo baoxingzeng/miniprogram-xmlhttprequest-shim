@@ -79,7 +79,7 @@ class CookieStorage {
     }
 
     checkDomain(urlDomain: string, cookieDomain: string) {
-        let _urlDomain = (urlDomain.substring(0, 1) === "." ? "" : "."); + urlDomain;
+        let _urlDomain = (urlDomain.substring(0, 1) === "." ? "" : ".") + urlDomain;
         let _cookieDomain = (cookieDomain.substring(0, 1) === "." ? "" : ".") + cookieDomain;
         return _urlDomain.slice(-_cookieDomain.length) === _cookieDomain;
     }
