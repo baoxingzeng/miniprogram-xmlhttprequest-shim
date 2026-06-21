@@ -5,12 +5,14 @@ import {
     fixXMLHttpRequest
 } from "fetch-xhr-shim";
 import {
-    XMLHttpRequest, XMLHttpRequestP
+    XMLHttpRequest, XMLHttpRequestP,
+    enableCookie
 } from "../dist/esm/index.js";
 // } from "../dist/miniprogram-xmlhttprequest-shim.esm.min.js";
 
 export {
-    fixXMLHttpRequest
+    fixXMLHttpRequest,
+    enableCookie
 };
 
 export const protagonistConfig = {

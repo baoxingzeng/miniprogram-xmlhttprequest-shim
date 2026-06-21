@@ -7,33 +7,6 @@ import { parseSetCookie, type Cookie as TCookie } from "set-cookie-parser";
 const webSite = { url: new Url("https://w3.org") };
 const storage = { value: null as null | CookieStorage };
 
-export const Cookie = createCookieInstance();
-
-export function enableCookie(url: string) {
-    if (validUrl.isUri(url)) { webSite.url = new Url(url); }
-    if (!storage.value) { storage.value = new CookieStorage(); }
-    if (!CookieUtils.get && !CookieUtils.set) {
-        CookieUtils.get = CookieStorage.prototype.getForUrl.bind(storage.value, false);
-        CookieUtils.set = CookieStorage.prototype.setForUrl.bind(storage.value, false);
-    }
-}
-
-function createCookieInstance() {
-    if (!storage.value) { storage.value = new CookieStorage(); }
-    let cookieSupported = typeof document !== "undefined" && document && "cookie" in document;
-
-    return {
-        get: function () {
-            if (cookieSupported) return document.cookie;
-            else return storage.value!.getForUrl(true, webSite.url.href);
-        },
-        set: function (cookie: string) {
-            if (cookieSupported) document.cookie = cookie;
-            else storage.value!.setForUrl(true, webSite.url.href);
-        },
-    };
-}
-
 class CookieStorage {
     constructor() {
         this.restore();
@@ -46,7 +19,11 @@ class CookieStorage {
     restore() {
         if (!platform) return;
 
-        let data = platform.mp.getStorageSync(this.storageKey) as string;
+        let data: string = platform.name !== "Alipay"
+            ? platform.mp.getStorageSync(this.storageKey)
+            // @ts-ignore
+            : platform.mp.getStorageSync({ key: this.storageKey }).data;    // Alipay Mini Program
+
         let cookies = (() => {
             try {
                 return data ? JSON.parse(data) as Array<TCookie & { _expires: number }> : [];
@@ -241,4 +218,31 @@ function checkPath(urlPath: string, cookiePath: string) {
     let _urlPath = appendSlash(urlPath);
     let _cookiePath = appendSlash(cookiePath);
     return _cookiePath.slice(0, _urlPath.length) === _urlPath;
+}
+
+function createCookieInstance() {
+    if (!storage.value) { storage.value = new CookieStorage(); }
+    let cookieSupported = typeof document !== "undefined" && document && "cookie" in document;
+
+    return {
+        get: function () {
+            if (cookieSupported) return document.cookie;
+            else return storage.value!.getForUrl(true, webSite.url.href);
+        },
+        set: function (cookie: string) {
+            if (cookieSupported) document.cookie = cookie;
+            else storage.value!.setForUrl(true, webSite.url.href);
+        },
+    };
+}
+
+export const Cookie = createCookieInstance();
+
+export function enableCookie(url: string) {
+    if (validUrl.isUri(url)) { webSite.url = new Url(url); }
+    if (!storage.value) { storage.value = new CookieStorage(); }
+    if (!CookieUtils.get && !CookieUtils.set) {
+        CookieUtils.get = CookieStorage.prototype.getForUrl.bind(storage.value, false);
+        CookieUtils.set = CookieStorage.prototype.setForUrl.bind(storage.value, false);
+    }
 }
