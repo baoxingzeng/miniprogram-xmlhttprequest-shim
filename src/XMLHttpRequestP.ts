@@ -199,7 +199,7 @@ export class XMLHttpRequestP extends XMLHttpRequestEventTargetP implements XMLHt
         if (CookieUtils.get && !s.requestHeaders!.get("cookie")) {
             let cookie = CookieUtils.get(options.url, this.withCredentials);
             if (cookie) {
-                options.enableCookie = true;
+                options.enableCookie = true;    // Alipay Mini Program
                 (options.header as Record<string, string>)["Cookie"] = cookie;
             }
         }
