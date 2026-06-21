@@ -16,6 +16,9 @@ export default [
             "fetch-xhr-shim",
             "fetch-xhr-shim/dev",
             "miniprogram-platform",
+            "url-parse",
+            "valid-url",
+            "set-cookie-parser",
         ],
         plugins: [
             typescript({
@@ -71,6 +74,9 @@ export default [
             "fetch-xhr-shim",
             "fetch-xhr-shim/dev",
             "miniprogram-platform",
+            "url-parse",
+            "valid-url",
+            "set-cookie-parser",
         ],
         plugins: [
             typescript({

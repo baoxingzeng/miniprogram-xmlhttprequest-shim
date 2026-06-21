@@ -1,1 +1,2 @@
-export { XMLHttpRequest, XMLHttpRequestP, setRequest } from "./XMLHttpRequestP";
+export { Cookie, enableCookie } from "./Cookie";
+export { XMLHttpRequest, XMLHttpRequestP, setRequestFunc } from "./XMLHttpRequestP";

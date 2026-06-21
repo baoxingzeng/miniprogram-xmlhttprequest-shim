@@ -50,7 +50,7 @@ const enum XHRCycle {
 };
 
 const mp = { request: getRequest() };
-export function setRequest(request: unknown) { mp.request = request as TRequestFunc; }
+export function setRequestFunc(request: unknown) { mp.request = request as TRequestFunc; }
 
 export const CookieUtils = {
     get: null as null | ((url: string, withCredentials?: boolean) => string),
