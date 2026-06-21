@@ -1,4 +1,5 @@
 import terser from "@rollup/plugin-terser";
+import commonjs from "@rollup/plugin-commonjs";
 import typescript from "@rollup/plugin-typescript";
 import { dts } from "rollup-plugin-dts";
 import { nodeResolve } from "@rollup/plugin-node-resolve";
@@ -57,6 +58,7 @@ export default [
                 declarationDir: "dist/types",
                 ignoreDeprecations: "6.0",
             }),
+            commonjs(),
             nodeResolve(),
             terser(),
         ],
@@ -115,6 +117,7 @@ export default [
                 declarationDir: "dist/types",
                 ignoreDeprecations: "6.0",
             }),
+            commonjs(),
             nodeResolve(),
             terser(),
         ],
