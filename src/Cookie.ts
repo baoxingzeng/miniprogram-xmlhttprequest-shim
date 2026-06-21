@@ -168,7 +168,7 @@ class CookieStorage {
                 cookie.expires = new Date((new Date()).getTime() + cookie.maxAge);
             }
 
-            if (checkDomain(currentUrl.hostname, cookie.domain)) {
+            if (checkDomain(currentUrl.hostname, cookie.domain!)) {
                 this.cookies = this.cookies.filter(c => !isSameCookie(c, cookie));
 
                 if (!cookie.expires || cookie.expires > (new Date())) {
