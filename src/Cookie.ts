@@ -1,92 +1,244 @@
 import Url from "url-parse";
 import validUrl from "valid-url";
+import { platform } from "./request";
 import { CookieUtils } from "./XMLHttpRequestP";
-import { type Cookie, parseSetCookie } from "set-cookie-parser";
+import { parseSetCookie, type Cookie as TCookie } from "set-cookie-parser";
 
 const webSite = { url: new Url("https://w3.org") };
-export function setWebSite(url: string) { if (validUrl.isUri(url)) { webSite.url = new Url(url); } }
+const storage = { value: null as null | CookieStorage };
+
+export const Cookie = createCookieInstance();
+
+export function enableCookie(url: string) {
+    if (validUrl.isUri(url)) { webSite.url = new Url(url); }
+    if (!storage.value) { storage.value = new CookieStorage(); }
+    if (!CookieUtils.get && !CookieUtils.set) {
+        CookieUtils.get = CookieStorage.prototype.getForUrl.bind(storage.value, false);
+        CookieUtils.set = CookieStorage.prototype.setForUrl.bind(storage.value, false);
+    }
+}
+
+function createCookieInstance() {
+    if (!storage.value) { storage.value = new CookieStorage(); }
+    let cookieSupported = typeof document !== "undefined" && document && "cookie" in document;
+
+    return {
+        get: function () {
+            if (cookieSupported) return document.cookie;
+            else return storage.value!.getForUrl(true, webSite.url.href);
+        },
+        set: function (cookie: string) {
+            if (cookieSupported) document.cookie = cookie;
+            else storage.value!.setForUrl(true, webSite.url.href);
+        },
+    };
+}
 
 class CookieStorage {
     constructor() {
-        this.cookies = {};
+        this.restore();
+        this.persist();
     }
 
-    cookies: Record<string /* Domain */, Record<string /* Path */, Record<string /* cookie-name */, Cookie>>>;
+    cookies: TCookie[] = [];
+    get storageKey() { return "__COOKIE_MPHTTPX__"; }
 
-    getForUrl(url: string) {
+    restore() {
+        if (!platform) return;
+
+        let data = platform.mp.getStorageSync(this.storageKey) as string;
+        let cookies = (() => {
+            try {
+                return data ? JSON.parse(data) as Array<TCookie & { _expires: number }> : [];
+            } catch (e) {
+                return [];
+            }
+        })();
+
+        this.cookies = cookies.map(_c => {
+            let copy: TCookie = copyCookie(_c);
+            copy.expires = new Date(_c._expires);
+            return copy;
+        });
+    }
+
+    persist() {
+        if (!platform) return;
+
+        let cookies = this.cookies.filter(c => (c.expires && c.expires > (new Date()))).map(c => {
+            let copy: TCookie & { _expires?: number } = copyCookie(c);
+            copy._expires = c.expires!.getTime();
+            return copy;
+        });
+
+        platform.mp.setStorage({
+            key: this.storageKey,
+            data: JSON.stringify(cookies),
+        });
+    }
+
+    getForUrl(fromPage: boolean, url: string, withCredentials?: boolean) {
         if (!validUrl.isUri(url)) return "";
 
         let currentUrl = new Url(url);
-        // TODO 同源
+        let sameOrigin = webSite.url.origin === currentUrl.origin;
 
-        let cookies: Cookie[] = [];
-        let domainNames = Object.getOwnPropertyNames(this.cookies);
-        for (let i = 0; i < domainNames.length; ++i) {
-            let domainName = domainNames[i]!;
-            let pathNames = Object.getOwnPropertyNames(this.cookies[domainName]);
-            for (let j = 0; j < pathNames.length; ++j) {
-                let pathName = pathNames[j]!;
-                let cookieNames = Object.getOwnPropertyNames(this.cookies[domainName]![pathName]);
-                for (let k = 0; k < cookieNames.length; ++k) {
-                    let cookieName = cookieNames[k]!;
-                    let cookie = this.cookies[domainName]![pathName]![cookieName]!;
-                    cookies.push(cookie);
-                }
-            }
+        if (!fromPage) {
+            if (!sameOrigin && !withCredentials) return "";
         }
 
-        let results: Cookie[] = [];
-        for (let index = 0; index < cookies.length; ++index) {
-            let cookie = cookies[index]!;
+        let results = { valid: [] as TCookie[], expired: [] as TCookie[] };
 
-            if (this.checkDomain(currentUrl.hostname, cookie.domain!)) {
-                if (this.checkPath(currentUrl.pathname, cookie.path!)) {
+        for (let i = 0; i < this.cookies.length; ++i) {
+            let cookie = this.cookies[i]!;
+
+            if (fromPage && cookie.httpOnly) {
+                continue;
+            }
+
+            if (!fromPage) {
+                if (!sameOrigin && cookie.sameSite && cookie.sameSite.toLowerCase() !== "none") {
+                    continue;
+                }
+
+                if (currentUrl.hostname !== "127.0.0.1" && currentUrl.hostname !== "localhost") {
+                    if (cookie.secure && currentUrl.protocol !== "https") {
+                        continue;
+                    }
+                }
+            }
+
+            if (checkDomain(currentUrl.hostname, cookie.domain!)) {
+                if (checkPath(currentUrl.pathname, cookie.path!)) {
                     if (!cookie.expires || cookie.expires > (new Date())) {
-                        results.push(cookie);
+                        results.valid.push(cookie);
+                    } else {
+                        results.expired.push(cookie);
                     }
                 }
             }
         }
 
-        // TODO 排序
-        return results.map(cookie => { return cookie.name + "=" + cookie.value; }).join("; ");
+        if (results.expired.length > 0) {
+            this.cookies = this.cookies.filter(c => (!c.expires || c.expires > (new Date())));
+            this.persist();
+        }
+
+        return results.valid.map(c => (c.name + "=" + c.value)).join("; ");
     }
 
-    setForUrl(url: string, cookies: string | string[]) {
-        if (!validUrl.isUri(url)) return;
+    setForUrl(fromPage: boolean, url: string, withCredentials?: boolean, cookies?: string | string[]) {
+        if (!validUrl.isUri(url) || !cookies) return;
 
         let currentUrl = new Url(url);
-        // TODO 同源
+        let sameOrigin = webSite.url.origin === currentUrl.origin;
+
+        if (!fromPage) {
+            if (!sameOrigin && !withCredentials) return;
+        }
 
         let results = parseSetCookie(cookies);
+
+        if (fromPage && results.length > 1) {
+            results = results.slice(0, 1);
+        }
+
         for (let i = 0; i < results.length; ++i) {
             let cookie = results[i]!;
-            if (!cookie.name) { continue; }
-            if (!cookie.domain) { cookie.domain = currentUrl.hostname; }
-            if (!cookie.path) { cookie.path = currentUrl.pathname; }
+            if (!cookie.name) continue;
+
+            if (fromPage && cookie.httpOnly) {
+                continue;
+            }
+
+            if (!cookie.domain) {
+                cookie.domain = currentUrl.hostname;
+            } else {
+                cookie.domain = cookie.domain.toLowerCase();
+                if (cookie.domain.split(".").filter(x => !!x).length >= 2) {
+                    cookie.domain = prependDot(cookie.domain);
+                }
+            }
+
+            if (!cookie.path) {
+                cookie.path = currentUrl.pathname;
+            }
 
             if (typeof cookie.maxAge === "number") {
-                cookie.expires = new Date((new Date).getTime() + cookie.maxAge);
+                cookie.expires = new Date((new Date()).getTime() + cookie.maxAge);
             }
 
-            if (this.checkDomain(currentUrl.hostname, cookie.domain)) {
-                if (!(cookie.domain in this.cookies)) { this.cookies[cookie.domain] = {}; }
-                if (!(cookie.path in this.cookies[cookie.domain]!)) { this.cookies[cookie.domain]![cookie.path] = {}; }
-                let cookiesObj = this.cookies[cookie.domain]![cookie.path]!;
-                cookiesObj[cookie.name] = cookie.name in cookiesObj ? Object.assign({}, cookiesObj[cookie.name], cookie) : cookie;
+            if (checkDomain(currentUrl.hostname, cookie.domain)) {
+                this.cookies = this.cookies.filter(c => !isSameCookie(c, cookie));
+
+                if (!cookie.expires || cookie.expires > (new Date())) {
+                    this.cookies = [cookie].concat(this.cookies);
+                }
             }
         }
+
+        this.cookies.sort((a, b) => {
+            let a_domain = prependDot(a.domain!);
+            let b_domain = prependDot(b.domain!);
+
+            if (a_domain.length !== b_domain.length) {
+                return b_domain.length - a_domain.length;
+            } else {
+                let a_path = appendSlash(a.path!);
+                let b_path = appendSlash(b.path!);
+
+                return b_path.length - a_path.length;
+            }
+        });
+
+        this.cookies = this.cookies.filter(c => (!c.expires || c.expires > (new Date())));
+        this.persist();
+    }
+}
+
+function isSameCookie(left: TCookie, right: TCookie) {
+    return left.domain === right.domain
+        && left.path === right.path
+        && left.name === right.name;
+}
+
+function copyCookie(source: TCookie) {
+    let copy: TCookie = {
+        name: source.name,
+        value: source.value,
+    };
+
+    if (source.domain !== undefined) { copy.domain = source.domain; }
+    if (source.path !== undefined) { copy.path = source.path; }
+    if (source.expires !== undefined) { copy.expires = source.expires; }
+    if (source.secure !== undefined) { copy.secure = source.secure; }
+    if (source.sameSite !== undefined) { copy.sameSite = source.sameSite; }
+    if (source.httpOnly !== undefined) { copy.httpOnly = source.httpOnly; }
+    if (source.partitioned !== undefined) { copy.partitioned = source.partitioned; }
+
+    return copy;
+}
+
+function prependDot(str: string) {
+    return (str.substring(0, 1) === "." ? "" : ".") + str;
+}
+
+function appendSlash(str: string) {
+    return str + (str.slice(-1) === "/" ? "" : "/");
+}
+
+function checkDomain(urlDomain: string, cookieDomain: string) {
+    if (cookieDomain.split(".").filter(x => !!x).length < 2) {
+        return urlDomain === cookieDomain;
     }
 
-    checkDomain(urlDomain: string, cookieDomain: string) {
-        let _urlDomain = (urlDomain.substring(0, 1) === "." ? "" : ".") + urlDomain;
-        let _cookieDomain = (cookieDomain.substring(0, 1) === "." ? "" : ".") + cookieDomain;
-        return _urlDomain.slice(-_cookieDomain.length) === _cookieDomain;
-    }
+    let _urlDomain = prependDot(urlDomain);
+    let _cookieDomain = prependDot(cookieDomain);
+    return _urlDomain.slice(-_cookieDomain.length) === _cookieDomain;
+}
 
-    checkPath(urlPath: string, cookiePath: string) {
-        let _urlPath = urlPath + (urlPath.slice(-1) === "/" ? "" : "/");
-        let _cookiePath = cookiePath + (cookiePath.slice(-1) === "/" ? "" : "/");
-        return _cookiePath.slice(0, _urlPath.length) === _urlPath;
-    }
+function checkPath(urlPath: string, cookiePath: string) {
+    let _urlPath = appendSlash(urlPath);
+    let _cookiePath = appendSlash(cookiePath);
+    return _cookiePath.slice(0, _urlPath.length) === _urlPath;
 }

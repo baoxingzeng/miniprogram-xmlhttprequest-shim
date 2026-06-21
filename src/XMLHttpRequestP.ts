@@ -54,7 +54,7 @@ export function setRequest(request: unknown) { mp.request = request as TRequestF
 
 export const CookieUtils = {
     get: null as null | ((url: string, withCredentials?: boolean) => string),
-    set: null as null | ((url: string, cookies: string | string[]) => void),
+    set: null as null | ((url: string, withCredentials?: boolean, cookies?: string | string[]) => void),
 }
 
 export class XMLHttpRequestP extends XMLHttpRequestEventTargetP implements XMLHttpRequest {
@@ -196,8 +196,11 @@ export class XMLHttpRequestP extends XMLHttpRequestEventTargetP implements XMLHt
             fail: requestFail.bind(this, requestId),
         };
 
-        if (CookieUtils.get) {
-            (options.header as Record<string, string>)["Cookie"] = CookieUtils.get(options.url, this.withCredentials);
+        if (CookieUtils.get && !s.requestHeaders!.get("cookie")) {
+            let cookie = CookieUtils.get(options.url, this.withCredentials);
+            if (cookie) {
+                (options.header as Record<string, string>)["Cookie"] = cookie;
+            }
         }
 
         const payload = (s.method !== "GET" && s.method !== "HEAD" && body !== null && body !== undefined) && new Payload(body as XMLHttpRequestBodyInit);
@@ -489,8 +492,10 @@ function execHeadersReceived(xhr: XMLHttpRequestP, res: IRequestSuccessCallbackB
     s.responseHeaders = new Headers(("header" in res ? res.header : "headers" in res ? (res as IRequestSuccessCallbackBaseResult).headers! : {}) as Record<string, string>);
 
     if (CookieUtils.set) {
-        const cookies = ("cookies" in res && Array.isArray(res.cookies)) ? res.cookies : (s.responseHeaders.get("Set-Cookie") || "");
-        CookieUtils.set(xhr.responseURL, cookies);
+        let cookies = ("cookies" in res && Array.isArray(res.cookies)) ? res.cookies : (s.responseHeaders.get("Set-Cookie") || "");
+        if (cookies.length > 0) {
+            CookieUtils.set(xhr.responseURL, xhr.withCredentials, cookies);
+        }
     }
 
     setReadyStateAndNotify(xhr, 2 /* HEADERS_RECEIVED */);

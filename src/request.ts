@@ -1,11 +1,17 @@
 import { getPlatform } from "miniprogram-platform";
 
-/** @internal */
+export const platform = getPlatform() as {
+    name: string;
+    mp: {
+        request: TRequestFunc;
+        getStorageSync: (key: string) => unknown;
+        setStorage: (value: { key: string; data: string }) => void;
+    };
+};
+
 export function getRequest() {
-    let platform = getPlatform() as { mp: { request: TRequestFunc; }; name: string; };
     return platform ? platform.mp.request : function errorRequest(options: IRequestOptions): IRequestTask {
-        const errMsg = "NOT_SUPPORTED_ERR";
-        const errno = 9;
+        const errMsg = "NOT_SUPPORTED_ERR", errno = 9;
 
         const err = {
             errMsg,
