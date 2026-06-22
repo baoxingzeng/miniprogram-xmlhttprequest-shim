@@ -115,10 +115,7 @@ class CookieStorage {
         }
 
         let results = parseSetCookie(cookies);
-
-        if (fromPage && results.length > 1) {
-            results = results.slice(0, 1);
-        }
+        if (fromPage && results.length > 1) { results = results.slice(0, 1); }
 
         for (let i = 0; i < results.length; ++i) {
             let cookie = results[i]!;
