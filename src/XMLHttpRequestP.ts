@@ -211,7 +211,7 @@ export class XMLHttpRequestP extends XMLHttpRequestEventTargetP implements XMLHt
             if (requestId !== s.requestId) return;
             if (s.pos !== XHRCycle.LOADSTART && s.pos !== XHRCycle.UPLOAD_LOADEND) return;
             options.data = data !== "" ? data : undefined;
-            options.headers = options.header!; // Alipay Mini Program
+            options.headers = options.header!;  // Alipay Mini Program
             s.requestTask = mp.request(options);
         }).bind(this);
 
