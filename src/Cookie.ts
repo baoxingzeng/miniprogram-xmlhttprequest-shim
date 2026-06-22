@@ -142,7 +142,7 @@ class CookieStorage {
             }
 
             if (typeof cookie.maxAge === "number") {
-                cookie.expires = new Date((new Date()).getTime() + cookie.maxAge);
+                cookie.expires = new Date((new Date()).getTime() + (cookie.maxAge * 1000));
             }
 
             if (checkDomain(currentUrl.hostname, cookie.domain!)) {
@@ -217,7 +217,7 @@ function checkDomain(urlDomain: string, cookieDomain: string) {
 function checkPath(urlPath: string, cookiePath: string) {
     let _urlPath = appendSlash(urlPath);
     let _cookiePath = appendSlash(cookiePath);
-    return _cookiePath.slice(0, _urlPath.length) === _urlPath;
+    return _urlPath.slice(0, _cookiePath.length) === _cookiePath;
 }
 
 function createCookieInstance() {
@@ -227,11 +227,11 @@ function createCookieInstance() {
     return {
         get: function () {
             if (cookieSupported) return document.cookie;
-            else return storage.value!.getForUrl(true, webSite.url.href);
+            else return storage.value!.getForUrl(true, webSite.url.href, false);
         },
         set: function (cookie: string) {
             if (cookieSupported) document.cookie = cookie;
-            else storage.value!.setForUrl(true, webSite.url.href);
+            else storage.value!.setForUrl(true, webSite.url.href, false, cookie);
         },
     };
 }
