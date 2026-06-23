@@ -114,15 +114,24 @@ class CookieStorage {
             if (!sameOrigin && !withCredentials) return;
         }
 
-        let results = parseSetCookie(cookies);
-        if (fromPage && results.length > 1) { results = results.slice(0, 1); }
+        let results = parseSetCookie(fromPage ? ("" + cookies) : cookies);
+
+        if (fromPage && results.length > 1) {
+            results = results.slice(0, 1);
+        }
 
         for (let i = 0; i < results.length; ++i) {
             let cookie = results[i]!;
             if (!cookie.name) continue;
 
-            if (fromPage && cookie.httpOnly) {
-                continue;
+            if (fromPage) {
+                if (cookie.httpOnly) {
+                    continue;
+                }
+
+                if (cookie.sameSite && cookie.sameSite.toLowerCase() === "none" && !cookie.secure) {
+                    continue;
+                }
             }
 
             if (!cookie.domain) {
@@ -226,6 +235,7 @@ function createCookieInstance() {
             if (cookieSupported) return document.cookie;
             else return storage.value!.getForUrl(true, webSite.url.href, false);
         },
+
         set: function (cookie: string) {
             if (cookieSupported) document.cookie = cookie;
             else storage.value!.setForUrl(true, webSite.url.href, false, cookie);
