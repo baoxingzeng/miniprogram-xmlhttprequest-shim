@@ -128,10 +128,10 @@ class CookieStorage {
                 if (cookie.httpOnly) {
                     continue;
                 }
+            }
 
-                if (cookie.sameSite && cookie.sameSite.toLowerCase() === "none" && !cookie.secure) {
-                    continue;
-                }
+            if (cookie.sameSite && cookie.sameSite.toLowerCase() === "none" && !cookie.secure) {
+                continue;
             }
 
             if (!cookie.domain) {
