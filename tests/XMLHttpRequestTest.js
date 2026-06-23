@@ -1,14 +1,14 @@
 import { suite } from "uvu";
 import * as assert from "uvu/assert";
 import { ui_rec, testConfig } from "./utils.js";
-import { Protagonist, fixXMLHttpRequest, enableCookie } from "./exports.js";
+import { Protagonist, fixXMLHttpRequest, Cookie, enableCookie } from "./exports.js";
 
 const _name = "XMLHttpRequest";
 export const _test = suite(_name);
 
 /**
- * @param {string} n 
- * @param {Parameters<typeof _test>[1]} t 
+ * @param {string} n
+ * @param {Parameters<typeof _test>[1]} t
  */
 const test = (n, t) => {
     return _test(...ui_rec(_name, n, t));
@@ -108,4 +108,118 @@ test("XMLHttpRequest custom request header", async () => {
     let data = JSON.parse(xhr.responseText);
     assert.equal(data.token, "123456789");
     assert.equal(data.contentType, "application/json");
+});
+
+test("Cookie support: set and echo cookies with withCredentials", async () => {
+    let XMLHttpRequestClass = mp.XMLHttpRequest || (() => { throw new ReferenceError("XMLHttpRequest is not defined") })();
+    let xhr1 = new XMLHttpRequestClass();
+    xhr1.open("GET", testConfig.api_prefix + "/api/cookie/set?name=testKey&value=testValue");
+    xhr1.withCredentials = true;
+    await (new Promise(resolve => {
+        xhr1.onload = () => resolve();
+        xhr1.send();
+    }));
+    assert.equal(xhr1.status, 200);
+
+    let xhr2 = new XMLHttpRequestClass();
+    xhr2.open("GET", testConfig.api_prefix + "/api/cookie/echo");
+    xhr2.withCredentials = true;
+    await (new Promise(resolve => {
+        xhr2.onload = () => resolve();
+        xhr2.send();
+    }));
+    assert.equal(xhr2.status, 200);
+    let data = JSON.parse(xhr2.responseText);
+    assert.equal(data.cookies.testKey, "testValue");
+    assert.equal(data.cookies.sessionId, "abc123xyz456");
+    assert.equal(data.cookies.theme, "dark");
+});
+
+test("Cookie support: same-origin cookies still sent when withCredentials is false", async () => {
+    let XMLHttpRequestClass = mp.XMLHttpRequest || (() => { throw new ReferenceError("XMLHttpRequest is not defined") })();
+    let xhr = new XMLHttpRequestClass();
+    xhr.open("GET", testConfig.api_prefix + "/api/cookie/echo");
+    xhr.withCredentials = false;
+    await (new Promise(resolve => {
+        xhr.onload = () => resolve();
+        xhr.send();
+    }));
+    assert.equal(xhr.status, 200);
+    let data = JSON.parse(xhr.responseText);
+    assert.equal(data.cookies.testKey, "testValue");
+    assert.ok(Object.keys(data.cookies).length >= 1);
+});
+
+test("Cookie support: clear cookies works correctly", async () => {
+    let XMLHttpRequestClass = mp.XMLHttpRequest || (() => { throw new ReferenceError("XMLHttpRequest is not defined") })();
+    let xhr1 = new XMLHttpRequestClass();
+    xhr1.open("GET", testConfig.api_prefix + "/api/cookie/clear");
+    xhr1.withCredentials = true;
+    await (new Promise(resolve => {
+        xhr1.onload = () => resolve();
+        xhr1.send();
+    }));
+    assert.equal(xhr1.status, 200);
+
+    let xhr2 = new XMLHttpRequestClass();
+    xhr2.open("GET", testConfig.api_prefix + "/api/cookie/echo");
+    xhr2.withCredentials = true;
+    await (new Promise(resolve => {
+        xhr2.onload = () => resolve();
+        xhr2.send();
+    }));
+    assert.equal(xhr2.status, 200);
+    let data = JSON.parse(xhr2.responseText);
+    assert.equal(data.cookies.testKey, "testValue");
+    assert.equal(data.cookies.sessionId, undefined);
+    assert.equal(data.cookies.theme, undefined);
+});
+
+test("document.cookie API: Cookie.get() returns all cookies in same format", async () => {
+    const cookieStr = Cookie.get();
+    assert.equal(typeof cookieStr, "string");
+    assert.ok(cookieStr.includes("testKey=testValue"));
+});
+
+test("document.cookie API: Cookie.set() can set a new cookie", async () => {
+    Cookie.set("customCookie=myCustomValue; Max-Age=3600; Path=/");
+    const cookieStr = Cookie.get();
+    assert.ok(cookieStr.includes("customCookie=myCustomValue"));
+
+    let XMLHttpRequestClass = mp.XMLHttpRequest || (() => { throw new ReferenceError("XMLHttpRequest is not defined") })();
+    let xhr = new XMLHttpRequestClass();
+    xhr.open("GET", testConfig.api_prefix + "/api/cookie/echo");
+    xhr.withCredentials = true;
+    await (new Promise(resolve => {
+        xhr.onload = () => resolve();
+        xhr.send();
+    }));
+    assert.equal(xhr.status, 200);
+    let data = JSON.parse(xhr.responseText);
+    assert.equal(data.cookies.customCookie, "myCustomValue");
+});
+
+test("document.cookie API: Cookie.set() can overwrite an existing cookie", async () => {
+    Cookie.set("customCookie=updatedValue");
+    const cookieStr = Cookie.get();
+    assert.ok(cookieStr.includes("customCookie=updatedValue"));
+
+    let XMLHttpRequestClass = mp.XMLHttpRequest || (() => { throw new ReferenceError("XMLHttpRequest is not defined") })();
+    let xhr = new XMLHttpRequestClass();
+    xhr.open("GET", testConfig.api_prefix + "/api/cookie/echo");
+    xhr.withCredentials = true;
+    await (new Promise(resolve => {
+        xhr.onload = () => resolve();
+        xhr.send();
+    }));
+    assert.equal(xhr.status, 200);
+    let data = JSON.parse(xhr.responseText);
+    assert.equal(data.cookies.customCookie, "updatedValue");
+});
+
+test("document.cookie API: expired cookies are automatically removed", async () => {
+    const pastDate = new Date(0).toUTCString();
+    Cookie.set(`expiredCookie=shouldBeGone; expires=${pastDate}`);
+    const cookieStr = Cookie.get();
+    assert.ok(!cookieStr.includes("expiredCookie"));
 });
