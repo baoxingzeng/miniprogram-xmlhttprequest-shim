@@ -196,7 +196,7 @@ export class XMLHttpRequestP extends XMLHttpRequestEventTargetP implements XMLHt
             fail: requestFail.bind(this, requestId),
         };
 
-        if (CookieUtils.get && !s.requestHeaders!.get("cookie")) {
+        if (CookieUtils.get && !s.requestHeaders!.has("cookie")) {
             let cookie = CookieUtils.get(options.url, this.withCredentials);
             if (cookie) {
                 options.enableCookie = true;    // Alipay Mini Program
