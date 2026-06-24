@@ -9,7 +9,7 @@ export const platform = getPlatform() as {
     };
 };
 
-export function getRequest() {
+export function getRequestFunc() {
     return platform ? platform.mp.request : function errorRequest(options: IRequestOptions): IRequestTask {
         const errMsg = "NOT_SUPPORTED_ERR", errno = 9;
 

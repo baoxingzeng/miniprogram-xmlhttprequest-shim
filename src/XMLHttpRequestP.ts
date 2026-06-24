@@ -24,7 +24,7 @@ import type {
     IRequestFailCallbackResult,
     IAliRequestFailCallbackResult
 } from "./request";
-import { getRequest } from "./request";
+import { getRequestFunc } from "./request";
 import { statusTextMap } from "./statusTextMap";
 import { createXMLHttpRequestUpload } from "./XMLHttpRequestUploadP";
 import { XMLHttpRequestEventTargetP } from "./XMLHttpRequestEventTargetP";
@@ -49,7 +49,7 @@ const enum XHRCycle {
     LOADEND
 };
 
-const mp = { request: getRequest() };
+const mp = { request: getRequestFunc() };
 export function setRequestFunc(request: unknown) { mp.request = request as TRequestFunc; }
 
 export const CookieAccessor = {
