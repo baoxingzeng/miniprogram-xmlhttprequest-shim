@@ -1,7 +1,7 @@
 import Url from "url-parse";
 import validUrl from "valid-url";
 import { platform } from "./request";
-import { CookieUtils } from "./XMLHttpRequestP";
+import { CookieAccessor } from "./XMLHttpRequestP";
 import { parseSetCookie, type Cookie as TCookie } from "set-cookie-parser";
 
 const webSite = { url: new Url("https://w3.org") };
@@ -228,7 +228,7 @@ function checkPath(urlPath: string, cookiePath: string) {
 
 function createCookieInstance() {
     if (!storage.value) { storage.value = new CookieStorage(); }
-    let cookieSupported = typeof document !== "undefined" && document && "cookie" in document;
+    const cookieSupported = typeof document !== "undefined" && document && "cookie" in document;
 
     return {
         get: function () {
@@ -248,8 +248,8 @@ export const Cookie = createCookieInstance();
 export function enableCookie(url: string) {
     if (validUrl.isUri(url)) { webSite.url = new Url(url); }
     if (!storage.value) { storage.value = new CookieStorage(); }
-    if (!CookieUtils.get && !CookieUtils.set) {
-        CookieUtils.get = CookieStorage.prototype.getForUrl.bind(storage.value, false);
-        CookieUtils.set = CookieStorage.prototype.setForUrl.bind(storage.value, false);
+    if (!CookieAccessor.get && !CookieAccessor.set) {
+        CookieAccessor.get = CookieStorage.prototype.getForUrl.bind(storage.value, false);
+        CookieAccessor.set = CookieStorage.prototype.setForUrl.bind(storage.value, false);
     }
 }

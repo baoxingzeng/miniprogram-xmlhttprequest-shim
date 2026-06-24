@@ -52,7 +52,7 @@ const enum XHRCycle {
 const mp = { request: getRequest() };
 export function setRequestFunc(request: unknown) { mp.request = request as TRequestFunc; }
 
-export const CookieUtils = {
+export const CookieAccessor = {
     get: null as null | ((url: string, withCredentials?: boolean) => string),
     set: null as null | ((url: string, withCredentials?: boolean, cookies?: string | string[]) => void),
 }
@@ -196,8 +196,8 @@ export class XMLHttpRequestP extends XMLHttpRequestEventTargetP implements XMLHt
             fail: requestFail.bind(this, requestId),
         };
 
-        if (CookieUtils.get && !s.requestHeaders!.has("cookie")) {
-            let cookie = CookieUtils.get(options.url, this.withCredentials);
+        if (CookieAccessor.get && !s.requestHeaders!.has("cookie")) {
+            let cookie = CookieAccessor.get(options.url, this.withCredentials);
             if (cookie) {
                 options.enableCookie = true;    // Alipay Mini Program
                 (options.header as Record<string, string>)["Cookie"] = cookie;
@@ -492,10 +492,10 @@ function execHeadersReceived(xhr: XMLHttpRequestP, res: IRequestSuccessCallbackB
     s.status = "statusCode" in res ? res.statusCode : "status" in res ? (res as IRequestSuccessCallbackBaseResult).status! : 200;
     s.responseHeaders = new Headers(("header" in res ? res.header : "headers" in res ? (res as IRequestSuccessCallbackBaseResult).headers! : {}) as Record<string, string>);
 
-    if (CookieUtils.set) {
+    if (CookieAccessor.set) {
         let cookies = ("cookies" in res && Array.isArray(res.cookies)) ? res.cookies : (s.responseHeaders.get("Set-Cookie") || "");
         if (cookies.length > 0) {
-            CookieUtils.set(xhr.responseURL, xhr.withCredentials, cookies);
+            CookieAccessor.set(xhr.responseURL, xhr.withCredentials, cookies);
         }
     }
 
