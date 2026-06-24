@@ -55,9 +55,7 @@ class CookieStorage {
     }
 
     getForUrl(fromPage: boolean, url: string, withCredentials?: boolean) {
-        if (!validUrl.isUri(url)) return "";
-
-        let currentUrl = new Url(url);
+        let currentUrl = new Url(fixUrl(url));
         let sameOrigin = webSite.url.origin === currentUrl.origin;
 
         if (!fromPage) {
@@ -105,9 +103,9 @@ class CookieStorage {
     }
 
     setForUrl(fromPage: boolean, url: string, withCredentials?: boolean, cookies?: string | string[]) {
-        if (!validUrl.isUri(url) || !cookies) return;
+        if (!cookies) return;
 
-        let currentUrl = new Url(url);
+        let currentUrl = new Url(fixUrl(url));
         let sameOrigin = webSite.url.origin === currentUrl.origin;
 
         if (!fromPage) {
@@ -179,6 +177,12 @@ class CookieStorage {
     }
 }
 
+function fixUrl(url: string) {
+    return validUrl.isUri(url)
+        ? url
+        : webSite.url.origin + (url.substring(0, 1) === "/" ? "" : "/") + url;
+}
+
 function isSameCookie(left: TCookie, right: TCookie) {
     return left.domain === right.domain
         && left.path === right.path
@@ -248,6 +252,7 @@ export const Cookie = createCookieInstance();
 export function enableCookie(url: string) {
     if (validUrl.isUri(url)) { webSite.url = new Url(url); }
     if (!storage.value) { storage.value = new CookieStorage(); }
+
     if (!CookieAccessor.get && !CookieAccessor.set) {
         CookieAccessor.get = CookieStorage.prototype.getForUrl.bind(storage.value, false);
         CookieAccessor.set = CookieStorage.prototype.setForUrl.bind(storage.value, false);
