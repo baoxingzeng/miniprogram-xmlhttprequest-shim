@@ -7,7 +7,7 @@ import { nodeResolve } from "@rollup/plugin-node-resolve";
 export default [
     // CommonJS
     {
-        input: "src/index.ts",
+        input: ["src/index.ts", "src/dev.ts"],
         output: {
             dir: "dist/cjs",
             format: "cjs",
@@ -50,7 +50,7 @@ export default [
 
     // ES6
     {
-        input: "src/index.ts",
+        input: ["src/index.ts", "src/dev.ts"],
         output: {
             dir: "dist/esm",
             format: "es",
