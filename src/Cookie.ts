@@ -10,7 +10,7 @@ const storage = { value: null as null | CookieStorage };
 class CookieStorage {
     constructor() {
         this.restore();
-        this.persist();
+        setTimeout(() => { this.persist(); }, 0);
     }
 
     cookies: TCookie[] = [];
@@ -19,22 +19,27 @@ class CookieStorage {
     restore() {
         if (!platform) return;
 
-        let data: string = platform.name !== "Alipay"
-            ? platform.mp.getStorageSync(this.storageKey)
-            // @ts-ignore
-            : platform.mp.getStorageSync({ key: this.storageKey }).data;    // Alipay Mini Program
-
         let cookies = (() => {
             try {
-                return data ? JSON.parse(data) as Array<TCookie & { _expires: number }> : [];
+                let data: string = platform.name !== "Alipay"
+                    ? platform.mp.getStorageSync(this.storageKey)
+                    // @ts-ignore
+                    : platform.mp.getStorageSync({ key: this.storageKey }).data;    // Alipay Mini Program
+
+                let parsed = data ? JSON.parse(data) as Array<TCookie & { _expires: number }> : [];
+                return Array.isArray(parsed) ? parsed : [];
             } catch (e) {
                 return [];
             }
         })();
 
-        this.cookies = cookies.map(_c => {
+        let isValid = (val: TCookie & { _expires: number }) => {
+            return typeof val === "object" && val && typeof val._expires === "number";
+        }
+
+        this.cookies = cookies.filter(_c => isValid(_c)).map(_c => {
             let copy: TCookie = copyCookie(_c);
-            copy.expires = new Date(_c._expires);
+            copy.expires = new Date(_c._expires || 0);
             return copy;
         });
     }
@@ -96,7 +101,7 @@ class CookieStorage {
 
         if (results.expired.length > 0) {
             this.cookies = this.cookies.filter(c => (!c.expires || c.expires > (new Date())));
-            this.persist();
+            setTimeout(() => { this.persist(); }, 0);
         }
 
         return results.valid.map(c => (c.name + "=" + c.value)).join("; ");
@@ -173,7 +178,7 @@ class CookieStorage {
         });
 
         this.cookies = this.cookies.filter(c => (!c.expires || c.expires > (new Date())));
-        this.persist();
+        setTimeout(() => { this.persist(); }, 0);
     }
 }
 
