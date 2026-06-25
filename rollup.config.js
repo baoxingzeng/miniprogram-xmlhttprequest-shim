@@ -34,7 +34,6 @@ export default [
     {
         input: "src/index.ts",
         output: {
-            // file: "dist/miniprogram-xmlhttprequest-shim.cjs.js",    // uncompressed
             file: "dist/miniprogram-xmlhttprequest-shim.cjs.min.js",
             format: "cjs",
         },
@@ -45,7 +44,7 @@ export default [
             }),
             commonjs(),
             nodeResolve(),
-            terser(),   // compress
+            terser(),
         ],
     },
 
@@ -78,7 +77,6 @@ export default [
     {
         input: "src/index.ts",
         output: {
-            // file: "dist/miniprogram-xmlhttprequest-shim.esm.js",    // uncompressed
             file: "dist/miniprogram-xmlhttprequest-shim.esm.min.js",
             format: "es",
         },
@@ -89,15 +87,26 @@ export default [
             }),
             commonjs(),
             nodeResolve(),
-            terser(),   // compress
+            terser(),
         ],
     },
+
 
     // Types
     {
         input: "dist/esm/types/index.d.ts",
         output: {
             file: "dist/index.d.ts",
+            format: "es",
+        },
+        plugins: [dts()],
+    },
+
+    // Types (dev)
+    {
+        input: "dist/esm/types/dev.d.ts",
+        output: {
+            file: "dist/dev.d.ts",
             format: "es",
         },
         plugins: [dts()],

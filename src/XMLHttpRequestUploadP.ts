@@ -15,7 +15,6 @@ export class XMLHttpRequestUploadP extends XMLHttpRequestEventTargetP implements
     /** @internal */ get __MPHTTPX__() { return { chain: ["XMLHttpRequestUpload", "XMLHttpRequestEventTarget", "EventTarget"] }; }
 }
 
-/** @internal */
 export function createXMLHttpRequestUpload(): XMLHttpRequestUpload {
     let upload = Object.create(XMLHttpRequestUploadP.prototype) as XMLHttpRequestUploadP;
     // @ts-ignore

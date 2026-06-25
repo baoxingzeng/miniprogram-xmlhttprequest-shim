@@ -1,4 +1,3 @@
-/** @internal */
 export const statusTextMap: Record<string, string> = {
     100: "Continue",
     101: "Switching Protocols",
