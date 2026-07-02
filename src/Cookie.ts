@@ -4,7 +4,7 @@ import { platform } from "./request";
 import { CookieAccessor } from "./XMLHttpRequestP";
 import { parseSetCookie, type Cookie as TCookie } from "set-cookie-parser";
 
-const webSite = { url: new Url("https://w3.org") };
+const webSite = { url: new Url("https://example.com") };
 const storage = { value: null as null | CookieStorage };
 
 class CookieStorage {
