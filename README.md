@@ -1,7 +1,7 @@
 # miniprogram-xmlhttprequest-shim <!-- omit in toc -->
 
 XMLHttpRequest polyfill for multi-platform mini programs，在小程序环境中提供符合 W3C 标准的 XMLHttpRequest API。
-通过补齐小程序缺失的 `XMLHttpRequest` 实现，配合 **自动导入** 插件，使各类基于 XHR 的 HTTP 客户端库无需任何适配即可在小程序中直接运行，真正实现"一套代码，多端复用"。
+通过补齐小程序缺失的 `XMLHttpRequest`，配合 **自动导入**，让基于 XHR 的 HTTP 客户端库免适配运行，降低 Web 代码迁移成本。
 
 ## 目录 <!-- omit in toc -->
 
