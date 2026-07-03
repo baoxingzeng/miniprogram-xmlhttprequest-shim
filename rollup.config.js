@@ -34,6 +34,23 @@ export default [
     {
         input: "src/index.ts",
         output: {
+            file: "dist/miniprogram-xmlhttprequest-shim.cjs.js",
+            format: "cjs",
+        },
+        plugins: [
+            typescript({
+                declarationDir: "dist/types",
+                ignoreDeprecations: "6.0",
+            }),
+            commonjs(),
+            nodeResolve(),
+        ],
+    },
+
+    // CommonJS (singlefile, minimized)
+    {
+        input: "src/index.ts",
+        output: {
             file: "dist/miniprogram-xmlhttprequest-shim.cjs.min.js",
             format: "cjs",
         },
@@ -77,6 +94,23 @@ export default [
     {
         input: "src/index.ts",
         output: {
+            file: "dist/miniprogram-xmlhttprequest-shim.esm.js",
+            format: "es",
+        },
+        plugins: [
+            typescript({
+                declarationDir: "dist/types",
+                ignoreDeprecations: "6.0",
+            }),
+            commonjs(),
+            nodeResolve(),
+        ],
+    },
+
+    // ES6 (singlefile, minimized)
+    {
+        input: "src/index.ts",
+        output: {
             file: "dist/miniprogram-xmlhttprequest-shim.esm.min.js",
             format: "es",
         },
@@ -90,7 +124,6 @@ export default [
             terser(),
         ],
     },
-
 
     // Types
     {

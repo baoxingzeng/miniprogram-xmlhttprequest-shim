@@ -4,7 +4,7 @@
   "license": "MIT",
   "author": "Xingzeng Bao",
   "homepage": "https://github.com/baoxingzeng/miniprogram-xmlhttprequest-shim",
-  "description": "",
+  "description": "W3C-compliant XMLHttpRequest polyfill for mini programs.",
   "type": "module",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
@@ -16,11 +16,28 @@
     "!dist/cjs/types/**/*",
     "!dist/esm/types/**/*"
   ],
+  "exports": {
+    ".": {
+      "require": "./dist/cjs/index.js",
+      "import": "./dist/esm/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./dev": {
+      "require": "./dist/cjs/dev.js",
+      "import": "./dist/esm/dev.js",
+      "types": "./dist/dev.d.ts"
+    }
+  },
   "sideEffects": false,
   "scripts": {
     "build": "rollup --config",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "keywords": [
+    "miniprogram",
+    "xmlhttprequest",
+    "polyfill"
+  ],
   "dependencies": {
     "fetch-xhr-shim": "^0.0.1-beta",
     "miniprogram-platform": "^0.0.1-beta",
