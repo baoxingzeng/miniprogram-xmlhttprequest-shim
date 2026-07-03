@@ -1,6 +1,7 @@
 # miniprogram-xmlhttprequest-shim <!-- omit in toc -->
 
 XMLHttpRequest polyfill for multi-platform mini programs，在小程序环境中提供符合 W3C 标准的 XMLHttpRequest API。
+通过补齐小程序缺失的 `XMLHttpRequest` 实现，配合 **自动导入** 插件，使各类基于 XHR 的 HTTP 客户端库无需任何适配即可在小程序中直接运行，真正实现"一套代码，多端复用"。
 
 ## 目录 <!-- omit in toc -->
 
@@ -44,10 +45,10 @@ npm install miniprogram-xmlhttprequest-shim
 | 模块              | 说明                                                                                            |
 | ----------------- | ----------------------------------------------------------------------------------------------- |
 | `XMLHttpRequest`  | 在浏览器环境中为原生 `XMLHttpRequest`，在小程序环境中自动回退为 polyfill，保证 Web 标准行为一致 |
-| `URLSearchParams` | 同 `XMLHttpRequest`，浏览器原生 / 小程序 polyfill 自适应                                        |
-| `Blob`            | 同 `XMLHttpRequest`，浏览器原生 / 小程序 polyfill 自适应                                        |
-| `File`            | 同 `XMLHttpRequest`，浏览器原生 / 小程序 polyfill 自适应                                        |
-| `FormData`        | 同 `XMLHttpRequest`，浏览器原生 / 小程序 polyfill 自适应                                        |
+| `URLSearchParams` | 浏览器原生 `URLSearchParams` / 小程序 polyfill 自适应                                           |
+| `Blob`            | 浏览器原生 `Blob` / 小程序 polyfill 自适应                                                      |
+| `File`            | 浏览器原生 `File` / 小程序 polyfill 自适应                                                      |
+| `FormData`        | 浏览器原生 `FormData` / 小程序 polyfill 自适应                                                  |
 | `Cookie`          | 提供 `get()` / `set()` 方法，模拟 `document.cookie` 接口                                        |
 | `enableCookie`    | 初始化 Cookie 模块，传入当前站点 URL                                                            |
 | `setRequestFunc`  | 当自动检测不到平台 `request` API 时，手动指定请求函数                                           |
