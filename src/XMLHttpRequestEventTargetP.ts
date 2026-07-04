@@ -57,13 +57,13 @@ export class XMLHttpRequestEventTargetState {
 
 function getHandlers(t: XMLHttpRequestEventTarget) {
     return {
-        onabort: (ev: ProgressEvent) => { executeFn(t, t.onabort, ev); },
-        onerror: (ev: ProgressEvent) => { executeFn(t, t.onerror, ev); },
-        onload: (ev: ProgressEvent) => { executeFn(t, t.onload, ev); },
-        onloadend: (ev: ProgressEvent) => { executeFn(t, t.onloadend, ev); },
-        onloadstart: (ev: ProgressEvent) => { executeFn(t, t.onloadstart, ev); },
-        onprogress: (ev: ProgressEvent) => { executeFn(t, t.onprogress, ev); },
-        ontimeout: (ev: ProgressEvent) => { executeFn(t, t.ontimeout, ev); },
+        onabort: function (ev: ProgressEvent) { executeFn(t, t.onabort, ev); },
+        onerror: function (ev: ProgressEvent) { executeFn(t, t.onerror, ev); },
+        onload: function (ev: ProgressEvent) { executeFn(t, t.onload, ev); },
+        onloadend: function (ev: ProgressEvent) { executeFn(t, t.onloadend, ev); },
+        onloadstart: function (ev: ProgressEvent) { executeFn(t, t.onloadstart, ev); },
+        onprogress: function (ev: ProgressEvent) { executeFn(t, t.onprogress, ev); },
+        ontimeout: function (ev: ProgressEvent) { executeFn(t, t.ontimeout, ev); },
     };
 }
 

@@ -136,7 +136,7 @@ export class XMLHttpRequestP extends XMLHttpRequestEventTargetP implements XMLHt
 
     getAllResponseHeaders(): string {
         const headers = state(this).responseHeaders; if (!headers) return "";
-        let result: string[] = []; headers.forEach((value, name) => { result.push(`${name}: ${value}\r\n`); });
+        let result: string[] = []; headers.forEach(function (value, name) { result.push(`${name}: ${value}\r\n`); });
         return result.join("");
     }
 
@@ -219,7 +219,7 @@ export class XMLHttpRequestP extends XMLHttpRequestEventTargetP implements XMLHt
         const task = execLoadstart(this, payload || undefined);
 
         if (!task) request();
-        else task.then(data => { if (data !== undefined) request(data); });
+        else task.then(function (data) { if (data !== undefined) request(data); });
     }
 
     setRequestHeader(name: string, value: string): void {
@@ -277,7 +277,7 @@ class XMLHttpRequestState {
 
 function getHandlers(t: XMLHttpRequest) {
     return {
-        onreadystatechange: (ev: Event) => { executeFn(t, t.onreadystatechange, ev); },
+        onreadystatechange: function (ev: Event) { executeFn(t, t.onreadystatechange, ev); },
     };
 }
 
@@ -287,7 +287,7 @@ function state(target: XMLHttpRequestP) {
 
 function Headers_toDict(headers: Headers) {
     let dict: Record<string, string> = {};
-    headers.forEach((value, name) => { dict[name] = value; });
+    headers.forEach(function (value, name) { dict[name] = value; });
     return dict;
 }
 
@@ -321,7 +321,7 @@ function checkRequestTimeout(xhr: XMLHttpRequestP) {
     if (!xhr.timeout) return
 
     const s = state(xhr);
-    const whenTimeout = () => {
+    const whenTimeout = function () {
         switch (s.pos) {
             case XHRCycle.LOADSTART:
             case XHRCycle.UPLOAD_LOADSTART:
@@ -334,7 +334,7 @@ function checkRequestTimeout(xhr: XMLHttpRequestP) {
         }
     }
 
-    s.timeoutId = setTimeout(() => { let task = s.requestTask; whenTimeout(); safeAbort(task); }, xhr.timeout);
+    s.timeoutId = setTimeout(function () { let task = s.requestTask; whenTimeout(); safeAbort(task); }, xhr.timeout);
 }
 
 function requestSuccess(this: XMLHttpRequestP, requestId: number, res: IRequestSuccessCallbackBaseResult) {
@@ -427,8 +427,8 @@ function execUploadLoadstart(xhr: XMLHttpRequestP, payload: Payload) {
     if (s.upload)
         emitProgressEvent(xhr.upload, "loadstart", 0, payload.size);
     return payload.promise
-        .then(r => { if (requestId === s.requestId) { return execUploadLoad(xhr, payload, r); } })
-        .catch(e => { if (requestId === s.requestId) { execUploadError(xhr); console.error(e); } });
+        .then(function (r) { if (requestId === s.requestId) { return execUploadLoad(xhr, payload, r); } })
+        .catch(function (e) { if (requestId === s.requestId) { execUploadError(xhr); console.error(e); } });
 }
 
 function execUploadLoad(xhr: XMLHttpRequestP, payload: Payload, data: string | ArrayBuffer) {
@@ -515,7 +515,7 @@ function execDone(xhr: XMLHttpRequestP, res: IRequestSuccessCallbackBaseResult) 
     if (s.pos !== XHRCycle.LOADING) return;
     s.pos = XHRCycle.DONE;
 
-    const setResponse = () => {
+    const setResponse = function () {
         s.response = getResponse(xhr.responseType, res.data ?? "");
         if (!xhr.responseType || xhr.responseType === "text") s.responseText = xhr.response;
         setReadyStateAndNotify(xhr, 4 /* DONE */);

@@ -24,8 +24,8 @@ export function getRequestFunc() {
         };
 
         Promise.resolve(err)
-            .then(err => { try { if (options.fail) { options.fail(err); } } catch (e) { console.error(e); } })
-            .then(() => { if (options.complete) { options.complete(err); } });
+            .then(function (err) { try { if (options.fail) { options.fail(err); } } catch (e) { console.error(e); } })
+            .then(function () { if (options.complete) { options.complete(err); } });
 
         throw new ReferenceError("request is not defined");
     }

@@ -10,7 +10,7 @@ const storage = { value: null as null | CookieStorage };
 class CookieStorage {
     constructor() {
         this.restore();
-        setTimeout(() => { this.persist(); }, 0);
+        setTimeout((function (this: CookieStorage) { this.persist(); }).bind(this), 0);
     }
 
     cookies: TCookie[] = [];
@@ -19,7 +19,7 @@ class CookieStorage {
     restore() {
         if (!platform) return;
 
-        let cookies = (() => {
+        let cookies = ((function (this: CookieStorage) {
             try {
                 let data: string = platform.name !== "Alipay"
                     ? platform.mp.getStorageSync(this.storageKey)
@@ -31,13 +31,13 @@ class CookieStorage {
             } catch (e) {
                 return [];
             }
-        })();
+        }).bind(this))();
 
-        let isValid = (val: TCookie & { _expires: number }) => {
+        let isValid = function (val: TCookie & { _expires: number }) {
             return typeof val === "object" && val && typeof val._expires === "number";
         }
 
-        this.cookies = cookies.filter(_c => isValid(_c)).map(_c => {
+        this.cookies = cookies.filter(function (_c) { return isValid(_c); }).map(function (_c) {
             let copy: TCookie = copyCookie(_c);
             copy.expires = new Date(_c._expires || 0);
             return copy;
@@ -47,7 +47,7 @@ class CookieStorage {
     persist() {
         if (!platform) return;
 
-        let cookies = this.cookies.filter(c => (c.expires && c.expires > (new Date()))).map(c => {
+        let cookies = this.cookies.filter(function (c) { return (c.expires && c.expires > (new Date())); }).map(function (c) {
             let copy: TCookie & { _expires?: number } = copyCookie(c);
             copy._expires = c.expires!.getTime();
             return copy;
@@ -100,11 +100,11 @@ class CookieStorage {
         }
 
         if (results.expired.length > 0) {
-            this.cookies = this.cookies.filter(c => (!c.expires || c.expires > (new Date())));
-            setTimeout(() => { this.persist(); }, 0);
+            this.cookies = this.cookies.filter(function (c) { return (!c.expires || c.expires > (new Date())); });
+            setTimeout((function (this: CookieStorage) { this.persist(); }).bind(this), 0);
         }
 
-        return results.valid.map(c => (c.name + "=" + c.value)).join("; ");
+        return results.valid.map(function (c) { return (c.name + "=" + c.value); }).join("; ");
     }
 
     setForUrl(fromPage: boolean, url: string, withCredentials?: boolean, cookies?: string | string[]) {
@@ -141,7 +141,7 @@ class CookieStorage {
                 cookie.domain = currentUrl.hostname;
             } else {
                 cookie.domain = cookie.domain.toLowerCase();
-                if (cookie.domain.split(".").filter(x => !!x).length >= 2) {
+                if (cookie.domain.split(".").filter(function (x) { return !!x; }).length >= 2) {
                     cookie.domain = prependDot(cookie.domain);
                 }
             }
@@ -155,7 +155,7 @@ class CookieStorage {
             }
 
             if (checkDomain(currentUrl.hostname, cookie.domain!)) {
-                this.cookies = this.cookies.filter(c => !isSameCookie(c, cookie));
+                this.cookies = this.cookies.filter(function (c) { return !isSameCookie(c, cookie); });
 
                 if (!cookie.expires || cookie.expires > (new Date())) {
                     this.cookies = [cookie].concat(this.cookies);
@@ -163,7 +163,7 @@ class CookieStorage {
             }
         }
 
-        this.cookies.sort((a, b) => {
+        this.cookies.sort(function (a, b) {
             let a_domain = prependDot(a.domain!);
             let b_domain = prependDot(b.domain!);
 
@@ -177,8 +177,8 @@ class CookieStorage {
             }
         });
 
-        this.cookies = this.cookies.filter(c => (!c.expires || c.expires > (new Date())));
-        setTimeout(() => { this.persist(); }, 0);
+        this.cookies = this.cookies.filter(function (c) { return (!c.expires || c.expires > (new Date())); });
+        setTimeout((function (this: CookieStorage) { this.persist(); }).bind(this), 0);
     }
 }
 
@@ -220,7 +220,7 @@ function appendSlash(str: string) {
 }
 
 function checkDomain(urlDomain: string, cookieDomain: string) {
-    if (cookieDomain.split(".").filter(x => !!x).length < 2) {
+    if (cookieDomain.split(".").filter(function (x) { return !!x; }).length < 2) {
         return urlDomain === cookieDomain;
     }
 
