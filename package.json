@@ -1,13 +1,13 @@
 {
   "name": "miniprogram-xmlhttprequest-shim",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "MIT",
   "author": "Xingzeng Bao",
   "homepage": "https://github.com/baoxingzeng/miniprogram-xmlhttprequest-shim",
   "description": "W3C-compliant XMLHttpRequest polyfill for mini programs.",
   "type": "module",
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
+  "main": "dist/miniprogram-xmlhttprequest-shim.cjs.js",
+  "module": "dist/miniprogram-xmlhttprequest-shim.esm.js",
   "types": "dist/index.d.ts",
   "files": [
     "README.md",
