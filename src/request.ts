@@ -10,10 +10,14 @@ export const platform = getPlatform() as {
 };
 
 export function getRequestFunc() {
-    return platform ? platform.mp.request : function errorRequest(options: IRequestOptions): IRequestTask {
-        const errMsg = "NOT_SUPPORTED_ERR", errno = 9;
+    const extract = function (mp: { request: TRequestFunc }) {
+        // @ts-ignore
+        return mp.request || mp.httpRequest /* DingTalk Mini Program */;
+    }
 
-        const err = {
+    return platform ? extract(platform.mp) : function errorRequest(options: IRequestOptions): IRequestTask {
+        const errMsg = "NOT_SUPPORTED_ERR", errno = 9;
+        const errInfo = {
             errMsg,
             errno,
             exception: {
@@ -23,9 +27,9 @@ export function getRequestFunc() {
             useHttpDNS: false,
         };
 
-        Promise.resolve(err)
+        Promise.resolve(errInfo)
             .then(function (err) { try { if (options.fail) { options.fail(err); } } catch (e) { console.error(e); } })
-            .then(function () { if (options.complete) { options.complete(err); } });
+            .then(function () { if (options.complete) { options.complete(errInfo); } });
 
         throw new ReferenceError("request is not defined");
     }
