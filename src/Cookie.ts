@@ -117,11 +117,9 @@ class CookieStorage {
             if (!sameOrigin && !withCredentials) return;
         }
 
-        let results = parseSetCookie(fromPage ? ("" + cookies) : cookies);
-
-        if (fromPage && results.length > 1) {
-            results = results.slice(0, 1);
-        }
+        let results = !fromPage
+            ? parseSetCookie(cookies)
+            : parseSetCookie("" + cookies, { split: false });
 
         for (let i = 0; i < results.length; ++i) {
             let cookie = results[i]!;
