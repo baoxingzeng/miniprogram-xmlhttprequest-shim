@@ -1,6 +1,6 @@
 # miniprogram-xmlhttprequest-shim <!-- omit in toc -->
 
-A W3C-compliant XMLHttpRequest polyfill for multi-platform mini programs, enabling XHR-based HTTP client libraries to run without modification and lowering the cost of migrating web code to mini programs.
+A W3C-compliant XMLHttpRequest polyfill for multi-platform mini programs, enabling XHR-based HTTP client libraries to run without modification. Write once, run everywhere.
 
 ## Table of Contents <!-- omit in toc -->
 
