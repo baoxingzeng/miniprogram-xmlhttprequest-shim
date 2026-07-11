@@ -136,7 +136,7 @@ export class XMLHttpRequestP extends XMLHttpRequestEventTargetP implements XMLHt
 
     getAllResponseHeaders(): string {
         const headers = state(this).responseHeaders; if (!headers) return "";
-        let result: string[] = []; headers.forEach(function (value, name) { result.push(`${name}: ${value}\r\n`); });
+        let result: string[] = []; headers.forEach(function (value: string, name: string) { result.push(`${name}: ${value}\r\n`); });
         return result.join("");
     }
 
@@ -287,7 +287,7 @@ function state(target: XMLHttpRequestP) {
 
 function Headers_toDict(headers: Headers) {
     let dict: Record<string, string> = {};
-    headers.forEach(function (value, name) { dict[name] = value; });
+    headers.forEach(function (value: string, name: string) { dict[name] = value; });
     return dict;
 }
 

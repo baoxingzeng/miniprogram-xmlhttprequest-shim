@@ -30,7 +30,7 @@ export function getRequestFunc() {
         };
 
         Promise.resolve(errInfo)
-            .then(function (err) {
+            .then(function (err: typeof errInfo) {
                 try { if (options.fail) { options.fail(err); } } catch (e) { console.error(e); }
                 if (options.complete) { options.complete(err); }
             });
