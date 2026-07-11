@@ -4,10 +4,10 @@ import { XMLHttpRequestEventTargetP, XMLHttpRequestEventTargetState } from "./XM
 export class XMLHttpRequestUploadP extends XMLHttpRequestEventTargetP implements XMLHttpRequestUpload {
     /** @internal */
     constructor() {
-        if (new.target === XMLHttpRequestUploadP) {
+        super();
+        if (this.constructor === XMLHttpRequestUploadP) {
             throw new TypeError("Failed to construct 'XMLHttpRequestUpload': Illegal constructor");
         }
-        super();
     }
 
     /** @internal */ toString() { return "[object XMLHttpRequestUpload]"; }

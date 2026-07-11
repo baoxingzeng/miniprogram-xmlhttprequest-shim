@@ -4,11 +4,11 @@ import { _Symbol, setState, attachFn, executeFn } from "fetch-xhr-shim/dev";
 export class XMLHttpRequestEventTargetP extends EventTargetP implements XMLHttpRequestEventTarget {
     /** @internal */
     constructor() {
-        if (new.target === XMLHttpRequestEventTargetP) {
+        super();
+        if (this.constructor === XMLHttpRequestEventTargetP) {
             throw new TypeError("Failed to construct 'XMLHttpRequestEventTarget': Illegal constructor");
         }
 
-        super();
         setState(this, "__XMLHttpRequestEventTarget__", new XMLHttpRequestEventTargetState(this));
     }
 
