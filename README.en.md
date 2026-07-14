@@ -1,14 +1,13 @@
 # miniprogram-xmlhttprequest-shim <!-- omit in toc -->
 
-A W3C-compliant XMLHttpRequest polyfill for multi-platform mini programs, enabling XHR-based HTTP client libraries to run without modification. Write once, run everywhere.
+A W3C-compliant XMLHttpRequest polyfill for multi-platform mini programs. Write once, run everywhere.
 
 ## Table of Contents <!-- omit in toc -->
 
-- [Platform Support](#platform-support)
+- [Mini-Program Support](#mini-program-support)
 - [Features](#features)
 - [Installation](#installation)
 - [API](#api)
-- [Auto Import](#auto-import)
 - [Quick Start](#quick-start)
 - [Cookie Support](#cookie-support)
 - [Timeout](#timeout)
@@ -17,7 +16,7 @@ A W3C-compliant XMLHttpRequest polyfill for multi-platform mini programs, enabli
 - [Platform Integration](#platform-integration)
 - [License](#license)
 
-## Platform Support
+## Mini-Program Support
 
 | WeChat | Alipay | Baidu | ByteDance |  QQ   | Kwai  |  JD   | RedNote |
 | :----: | :----: | :---: | :-------: | :---: | :---: | :---: | :-----: |
@@ -54,43 +53,6 @@ npm install miniprogram-xmlhttprequest-shim
 
 > **Key design**: `XMLHttpRequest` passes through to the native implementation in browsers and switches to polyfill in mini programs. The same code runs in both environments without modification, following web standards.
 
-## Auto Import
-
-> **Recommended**: Mini programs lack `globalThis`, so you cannot directly use `XMLHttpRequest` as a global the way you would in a browser. Using an import plugin like [unplugin-auto-import](https://www.npmjs.com/package/unplugin-auto-import) is strongly recommended to eliminate manual `import` statements.
-
-If you are using unplugin-auto-import, configure it as follows:
-
-```javascript
-// For reference only
-AutoImport({
-    // Other configurations
-
-    imports: [
-        // Other imports
-
-        {
-            "miniprogram-xmlhttprequest-shim": [
-                "XMLHttpRequest",
-
-                // Optional imports
-                "URLSearchParams",
-                "Blob",
-                "File",
-                "FormData",
-            ],
-        },
-
-        // Other imports
-    ],
-
-    // Other configurations
-});
-```
-
-> **For UniApp developers**: If your project was created with HBuilderX using the legacy Vue 2 template, you may need to install an older version of unplugin-auto-import (e.g., `0.16.7`) for CMD module compatibility.
->
-> **For Alipay Mini Program developers**: Alipay reserves browser built-in names such as `globalThis`, `window`, `document`, and `XMLHttpRequest` as keywords. Using them as import identifiers may prevent the framework from accessing imported content correctly. If you encounter import errors, use import aliasing as a workaround, e.g., `import { XMLHttpRequest as XHR } from "..."`.
-
 ## Quick Start
 
 ### GET Request <!-- omit in toc -->
@@ -125,7 +87,7 @@ xhr.onreadystatechange = () => {
     }
 };
 
-xhr.send(JSON.stringify({ name: "Zhang San", age: 25 }));
+xhr.send(JSON.stringify({ name: "John Smith", age: 25 }));
 ```
 
 ### POST Request (FormData Upload) <!-- omit in toc -->
@@ -134,7 +96,7 @@ xhr.send(JSON.stringify({ name: "Zhang San", age: 25 }));
 import { XMLHttpRequest, Blob, FormData } from "miniprogram-xmlhttprequest-shim";
 
 const formData = new FormData();
-formData.append("name", "Li Si");
+formData.append("name", "Joe Bloggs");
 formData.append("file", new Blob(["file content"], { type: "text/plain" }), "test.txt");
 
 const xhr = new XMLHttpRequest();
@@ -162,7 +124,7 @@ xhr.onload = () => {
 xhr.send(new URLSearchParams({ q: "keyword", page: "1" }));
 ```
 
-> The `send()` body parameter supports `string`, `ArrayBuffer`, `TypedArray`, `DataView`, `URLSearchParams`, `Blob`, `FormData`, and other types. Detection is based on feature checks rather than `instanceof`, so other web-compatible implementations are also supported. Using the `Blob`, `FormData`, and `URLSearchParams` exported by this library is recommended—no additional dependencies required.
+> The `send()` body parameter supports `string`, `ArrayBuffer`, `TypedArray`, `DataView`, `URLSearchParams`, `Blob`, `FormData`, and other types. Detection is based on feature checks, so other web-compatible implementations are also supported.
 
 ## Cookie Support
 
@@ -287,7 +249,7 @@ xhr.onreadystatechange = () => {
 
 ## Platform Integration
 
-This shim uses `miniprogram-platform` to automatically detect the runtime environment (WeChat, Alipay, Baidu, ByteDance, QQ, Kwai, JD, RedNote, etc.) and uses the corresponding platform's `request` API to make network calls—no manual configuration required.
+Automatically detects the runtime environment (WeChat, Alipay, Baidu, ByteDance, QQ, Kwai, JD, RedNote, etc.) and uses the corresponding platform's `request` API to make network calls—no manual configuration required.
 
 ### Manual Request Function <!-- omit in toc -->
 
@@ -298,6 +260,8 @@ import { setRequestFunc } from "miniprogram-xmlhttprequest-shim";
 
 setRequestFunc(wx.request); // e.g., in a WeChat-like environment that wasn't auto-detected
 ```
+
+> **For Alipay Mini Program developers**: Alipay reserves browser built-in names such as `globalThis`, `window`, `document`, and `XMLHttpRequest` as keywords. Using them as import identifiers may prevent the framework from accessing imported content correctly. If you encounter import errors, use import aliasing as a workaround, e.g., `import { XMLHttpRequest as myXMLHttpRequest } from "..."`.
 
 ## License
 

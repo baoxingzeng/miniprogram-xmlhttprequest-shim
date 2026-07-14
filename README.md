@@ -1,7 +1,6 @@
 # miniprogram-xmlhttprequest-shim <!-- omit in toc -->
 
-XMLHttpRequest polyfill for multi-platform mini programs，为小程序提供符合 W3C 标准的 XMLHttpRequest API。
-通过补齐小程序缺失的 `XMLHttpRequest`，配合自动导入插件，让基于 XHR 的 HTTP 客户端库免适配运行，一套代码，多端复用。
+XMLHttpRequest polyfill for multi-platform mini programs，为小程序提供符合 W3C 标准的 XMLHttpRequest API，一套代码，多端复用。
 
 **[English](https://github.com/baoxingzeng/miniprogram-xmlhttprequest-shim/blob/main/README.en.md)**
 
@@ -11,14 +10,13 @@ XMLHttpRequest polyfill for multi-platform mini programs，为小程序提供符
 - [特性](#特性)
 - [安装](#安装)
 - [API](#api)
-- [自动导入](#自动导入)
 - [快速开始](#快速开始)
 - [Cookie 支持](#cookie-支持)
 - [超时设置](#超时设置)
 - [事件处理](#事件处理)
 - [兼容性](#兼容性)
 - [平台集成](#平台集成)
-- [License](#license)
+- [开源协议](#开源协议)
 
 ## 小程序支持
 
@@ -53,46 +51,9 @@ npm install miniprogram-xmlhttprequest-shim
 | `FormData`        | 浏览器原生 `FormData` / 小程序 polyfill 自适应                                                  |
 | `Cookie`          | 提供 `get()` / `set()` 方法，模拟 `document.cookie` 接口                                        |
 | `enableCookie`    | 初始化 Cookie 模块，传入当前站点 URL                                                            |
-| `setRequestFunc`  | 当自动检测不到平台 `request` API 时，手动指定请求函数                                           |
+| `setRequestFunc`  | 当无法自动检测到平台的 `request` API 时，手动指定请求函数                                       |
 
-> 设计要点：`XMLHttpRequest` 在浏览器中直接透传原生实现，在小程序中自动切换为 polyfill，同一套代码无需任何修改即可在浏览器和小程序中以 Web 标准方式运行。
-
-## 自动导入
-
-> **推荐**：小程序环境中没有 `globalThis`，无法像浏览器一样直接使用全局的 `XMLHttpRequest`，因此非常推荐配合 [unplugin-auto-import](https://www.npmjs.com/package/unplugin-auto-import) 等导入插件，免去手动写 `import` 语句的麻烦。
-
-如果你使用 unplugin-auto-import，可以这样配置：
-
-```javascript
-// 仅参考
-AutoImport({
-    // 其他配置
-
-    imports: [
-        // 其他导入
-
-        {
-            "miniprogram-xmlhttprequest-shim": [
-                "XMLHttpRequest",
-
-                // 以下为可选导入
-                "URLSearchParams",
-                "Blob",
-                "File",
-                "FormData",
-            ],
-        },
-
-        // 其他导入
-    ],
-
-    // 其他配置
-});
-```
-
-> **UniApp 开发者注意**：如果你的项目是通过 HBuilderX 基于 Vue 2 旧模板创建的，可能需要安装较低版本的 unplugin-auto-import（如 `0.16.7`）以兼容 CMD 模块格式。
->
-> **支付宝小程序开发者注意**：支付宝官方将 `globalThis`、`window`、`document`、`XMLHttpRequest` 等浏览器内置对象名列为保留字，不应作为导入标识符使用，否则可能导致框架无法正常访问导入内容。如遇导入异常，可通过导入重命名规避，例如 `import { XMLHttpRequest as myXMLHttpRequest } from "..."`。
+> 设计要点：`XMLHttpRequest` 在浏览器中直接返回原生实现，在小程序中自动切换为 polyfill，同一套代码无需任何修改即可在浏览器和小程序中以 Web 标准方式运行。
 
 ## 快速开始
 
@@ -165,7 +126,7 @@ xhr.onload = () => {
 xhr.send(new URLSearchParams({ q: "关键词", page: "1" }));
 ```
 
-> `send()` 的 body 参数支持 `string`、`ArrayBuffer`、`TypedArray`、`DataView`、`URLSearchParams`、`Blob`、`FormData` 等类型。内部通过特征判断而非 `instanceof` 检测，因此也兼容其他符合 Web 标准的实现；推荐直接使用本库导出的 `Blob`、`FormData` 和 `URLSearchParams`，无需额外安装其他依赖。
+> `send()` 的 body 参数支持 `string`、`ArrayBuffer`、`TypedArray`、`DataView`、`URLSearchParams`、`Blob`、`FormData` 等类型。内部通过特征判断，因此也兼容其他符合 Web 标准的实现。
 
 ## Cookie 支持
 
@@ -290,11 +251,11 @@ xhr.onreadystatechange = () => {
 
 ## 平台集成
 
-该 shim 通过 `miniprogram-platform` 自动检测运行环境（微信、支付宝、百度、字节跳动、QQ、快手、京东、小红书等），并使用对应平台的 `request` API 发起网络请求，无需手动配置。
+自动检测运行环境（微信、支付宝、百度、字节跳动、QQ、快手、京东、小红书等），并使用对应平台的 `request` API 发起网络请求，无需手动配置。
 
 ### 手动指定请求函数 <!-- omit in toc -->
 
-如果运行环境比较特殊，自动检测不到 `request` API，可以通过 `setRequestFunc` 显式指定：
+如果运行环境比较特殊，无法自动检测到 `request` API 时，可以通过 `setRequestFunc` 显式指定：
 
 ```javascript
 import { setRequestFunc } from "miniprogram-xmlhttprequest-shim";
@@ -302,7 +263,9 @@ import { setRequestFunc } from "miniprogram-xmlhttprequest-shim";
 setRequestFunc(wx.request); // 比如在某个类微信但没被自动识别的环境中
 ```
 
-## License
+> **支付宝小程序开发者注意**：支付宝官方将 `globalThis`、`window`、`document`、`XMLHttpRequest` 等浏览器内置对象名列为保留字，不应作为导入标识符使用，否则可能导致框架无法正常访问导入内容。如遇导入异常，可通过导入重命名规避，例如 `import { XMLHttpRequest as myXMLHttpRequest } from "..."`。
+
+## 开源协议
 
 MIT License
 
