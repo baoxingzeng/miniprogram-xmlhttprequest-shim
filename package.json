@@ -1,6 +1,6 @@
 {
   "name": "miniprogram-xmlhttprequest-shim",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "license": "MIT",
   "author": "Xingzeng Bao",
   "homepage": "https://github.com/baoxingzeng/miniprogram-xmlhttprequest-shim",
@@ -39,8 +39,8 @@
     "polyfill"
   ],
   "dependencies": {
-    "fetch-xhr-shim": ">=1.0.0",
-    "miniprogram-platform": ">=1.0.0",
+    "fetch-xhr-shim": ">=1.1.0",
+    "miniprogram-platform": ">=1.1.0",
     "set-cookie-parser": "^3.1.0",
     "url-parse": "^1.5.10",
     "valid-url": "^1.0.9"
