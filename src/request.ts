@@ -12,12 +12,12 @@ export const platform = getPlatform() as {
 export function getRequestFunc() {
     const extractFn = function (platform: { mp: { request: TRequestFunc } }) {
         // @ts-ignore
-        return platform && (platform.mp.request || platform.mp.httpRequest /* DingTalk Mini Program */);
+        const request = platform && (platform.mp.request || platform.mp.httpRequest /* DingTalk Mini Program */);
+        return typeof request === "function" ? request.bind(platform.mp) : request;
     }
 
     return extractFn(platform) || function errorRequest(options: IRequestOptions): IRequestTask {
-        const errMsg = "NOT_SUPPORTED_ERR";
-        const errno = 9;
+        const errMsg = "NOT_SUPPORTED_ERR", errno = 9;  // DOMException (NotSupportedError)
 
         const errInfo = {
             errMsg,
