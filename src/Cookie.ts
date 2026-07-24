@@ -21,7 +21,7 @@ class CookieStorage {
 
         let cookies = ((function (this: CookieStorage) {
             try {
-                let data: string = platform.name !== "Alipay"
+                let data: string = (platform.name !== "Alipay" && platform.name !== "DingTalk")
                     ? platform.mp.getStorageSync(this.storageKey)
                     // @ts-ignore
                     : platform.mp.getStorageSync({ key: this.storageKey }).data;    // Alipay Mini Program
