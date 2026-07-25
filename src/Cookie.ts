@@ -4,7 +4,7 @@ import { platform } from "./request";
 import { CookieAccessor } from "./XMLHttpRequestP";
 import { parseSetCookie, type Cookie as TCookie } from "set-cookie-parser";
 
-const webSite = { url: new Url("https://example.com") };
+const webSite = /*#__PURE__*/function () { return { url: new Url("https://example.com") }; }();
 const storage = { value: null as null | CookieStorage };
 
 class CookieStorage {
@@ -250,7 +250,7 @@ function createCookieInstance() {
     };
 }
 
-export const Cookie = createCookieInstance();
+export const Cookie = /*#__PURE__*/createCookieInstance();
 
 export function enableCookie(url: string) {
     if (validUrl.isUri(url)) { webSite.url = new Url(url); }

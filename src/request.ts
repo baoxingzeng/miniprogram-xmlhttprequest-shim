@@ -1,6 +1,6 @@
 import { getPlatform } from "miniprogram-platform";
 
-export const platform = getPlatform() as {
+export const platform = /*#__PURE__*/getPlatform() as {
     name: string;
     mp: {
         request: TRequestFunc;

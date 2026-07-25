@@ -49,7 +49,7 @@ const enum XHRCycle {
     LOADEND
 };
 
-const mp = { request: getRequestFunc() };
+const mp = /*#__PURE__*/function () { return { request: getRequestFunc() }; }();
 export function setRequestFunc(request: unknown) { mp.request = request as TRequestFunc; }
 
 export const CookieAccessor = {
