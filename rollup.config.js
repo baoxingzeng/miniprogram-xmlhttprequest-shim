@@ -1,5 +1,4 @@
 import terser from "@rollup/plugin-terser";
-import commonjs from "@rollup/plugin-commonjs";
 import typescript from "@rollup/plugin-typescript";
 import { dts } from "rollup-plugin-dts";
 import { babel } from "@rollup/plugin-babel";
@@ -18,9 +17,6 @@ export default [
             "fetch-xhr-shim",
             "fetch-xhr-shim/dev",
             "miniprogram-platform",
-            "url-parse",
-            "valid-url",
-            "set-cookie-parser",
         ],
         plugins: [
             typescript({
@@ -43,7 +39,6 @@ export default [
                 declarationDir: "dist/types",
                 moduleResolution: "bundler",
             }),
-            commonjs(),
             nodeResolve(),
             babel({
                 babelHelpers: "bundled",
@@ -64,7 +59,6 @@ export default [
                 declarationDir: "dist/types",
                 moduleResolution: "bundler",
             }),
-            commonjs(),
             nodeResolve(),
             babel({
                 babelHelpers: "bundled",
@@ -86,9 +80,6 @@ export default [
             "fetch-xhr-shim",
             "fetch-xhr-shim/dev",
             "miniprogram-platform",
-            "url-parse",
-            "valid-url",
-            "set-cookie-parser",
         ],
         plugins: [
             typescript({
@@ -111,7 +102,6 @@ export default [
                 declarationDir: "dist/types",
                 moduleResolution: "bundler",
             }),
-            commonjs(),
             nodeResolve(),
             babel({
                 babelHelpers: "bundled",
@@ -132,7 +122,6 @@ export default [
                 declarationDir: "dist/types",
                 moduleResolution: "bundler",
             }),
-            commonjs(),
             nodeResolve(),
             babel({
                 babelHelpers: "bundled",

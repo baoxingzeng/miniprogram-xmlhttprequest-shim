@@ -52,9 +52,13 @@ const enum XHRCycle {
 const mp = /*#__PURE__*/function () { return { request: getRequestFunc() }; }();
 export function setRequestFunc(request: unknown) { mp.request = request as TRequestFunc; }
 
-export const CookieAccessor = {
-    get: null as null | ((url: string, withCredentials?: boolean) => string),
-    set: null as null | ((url: string, withCredentials?: boolean, cookies?: string | string[]) => void),
+type TGetCookieFn = (url: string, withCredentials?: boolean) => string;
+type TSetCookieFn = (url: string, withCredentials?: boolean, cookies?: string | string[]) => void;
+
+const CookieAccessor = { get: null as null | TGetCookieFn, set: null as null | TSetCookieFn };
+export function useCookie(accessor: { get: TGetCookieFn; set: TSetCookieFn; }) {
+    CookieAccessor.get = function (url, withCredentials) { return accessor.get(url, withCredentials); };
+    CookieAccessor.set = function (url, withCredentials, cookies) { return accessor.set(url, withCredentials, cookies); };
 }
 
 export class XMLHttpRequestP extends XMLHttpRequestEventTargetP implements XMLHttpRequest {

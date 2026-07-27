@@ -6,13 +6,13 @@ import {
 } from "fetch-xhr-shim";
 import {
     XMLHttpRequest, XMLHttpRequestP,
-    Cookie, enableCookie
+    useCookie
 } from "../dist/esm/index.js";
 // } from "../dist/miniprogram-xmlhttprequest-shim.esm.min.js";
 
 export {
     fixXMLHttpRequest,
-    Cookie, enableCookie
+    useCookie
 };
 
 export const protagonistConfig = {

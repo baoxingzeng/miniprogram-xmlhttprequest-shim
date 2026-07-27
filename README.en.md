@@ -29,7 +29,7 @@ A W3C-compliant XMLHttpRequest polyfill for multi-platform mini programs. Write 
 - Full XMLHttpRequest Level 2 implementation, including events and timeouts
 - Supports `text`, `json`, `arraybuffer`, and `blob` response types (`"document"` is unavailable due to the lack of DOM in mini programs)
 - Provides `URLSearchParams`, `Blob`, `File`, and `FormData` covering common body types
-- Optional cookie management with persistent storage and automatic cross-request handling, consistent with browser behavior
+- Optional plugin [miniprogram-cookie-shim](https://www.npmjs.com/package/miniprogram-cookie-shim) for automatic cross-request cookie handling with persistent storage
 - Automatic adaptation for WeChat, Alipay, Baidu, ByteDance, QQ, Kwai, JD, RedNote, and other major mini program platforms
 
 ## Installation
@@ -47,8 +47,6 @@ npm install miniprogram-xmlhttprequest-shim
 | `Blob`            | Native in browsers / polyfill in mini programs                                                                         |
 | `File`            | Native in browsers / polyfill in mini programs                                                                         |
 | `FormData`        | Native in browsers / polyfill in mini programs                                                                         |
-| `Cookie`          | Provides `get()` / `set()` methods, simulating the `document.cookie` interface                                         |
-| `enableCookie`    | Initializes the cookie module with a base URL                                                                          |
 | `setRequestFunc`  | Manually specifies the request function when the platform's `request` API cannot be auto-detected                      |
 
 > **Key design**: `XMLHttpRequest` passes through to the native implementation in browsers and switches to polyfill in mini programs. The same code runs in both environments without modification, following web standards.
@@ -128,25 +126,24 @@ xhr.send(new URLSearchParams({ q: "keyword", page: "1" }));
 
 ## Cookie Support
 
-`Cookie.get()` and `Cookie.set()` work as expected in both mini programs and browsers:
-
-- **In mini programs**: Browser cookie behavior is simulated via an internal cookie store. Cookies with `Max-Age` or `expires` are persisted to storage and restored after app restart. Session cookies without an expiration are not persisted, consistent with browser behavior.
-- **In browsers**: Reads and writes `document.cookie` directly, fully matching native behavior.
+```bash
+npm install miniprogram-cookie-shim
+```
 
 ```javascript
-import { enableCookie, Cookie } from "miniprogram-xmlhttprequest-shim";
+import { useCookie } from "miniprogram-xmlhttprequest-shim";
+import { Cookie, createAccessor } from "miniprogram-cookie-shim";
 
-// Initialize cookies (optional in browsers; required in mini programs to set the base URL)
-// enableCookie can be called multiple times; subsequent calls only update the base URL
-enableCookie("https://example.com");
+// Enable cookie support; all subsequent requests will automatically include matching cookies.
+// Set XMLHttpRequest#withCredentials = true for cross-origin requests.
+useCookie(createAccessor("https://example.com"));
 
 // Read and write cookies—same semantics as document.cookie getter/setter
 Cookie.set("token=abc123; Max-Age=3600; Path=/");
 console.log(Cookie.get()); // "token=abc123"
-
-// All subsequent XMLHttpRequest calls will automatically include matching cookies
-// Set withCredentials = true for cross-origin requests
 ```
+
+> See [miniprogram-cookie-shim](https://www.npmjs.com/package/miniprogram-cookie-shim) for details.
 
 > In browsers, `document.cookie` is defined on `Document.prototype`. Mini programs have no `Document` constructor, so prototype-level mounting is not possible. However, if your runtime provides a global `document` object (e.g., Taro.js or similar cross-platform frameworks), you can mount the cookie implementation onto the instance property for a similar effect:
 >

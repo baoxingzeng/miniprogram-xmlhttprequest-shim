@@ -31,7 +31,7 @@ XMLHttpRequest polyfill for multi-platform mini programs，为小程序提供符
 - 完整实现 XMLHttpRequest Level 2 接口，包括事件、超时等
 - 支持 `text`、`json`、`arraybuffer`、`blob` 四种 responseType，`"document"` 因小程序无 DOM 环境不支持
 - 提供 `URLSearchParams`、`Blob`、`File`、`FormData`，覆盖常用 body 类型
-- 可选启用 Cookie 管理，支持持久化存储与跨请求自动携带，行为与浏览器一致
+- 可选插件 [miniprogram-cookie-shim](https://www.npmjs.com/package/miniprogram-cookie-shim)，支持跨请求自动携带与持久化存储
 - 自动适配微信、支付宝、百度、字节跳动、QQ、快手、京东、小红书等主流小程序平台
 
 ## 安装
@@ -49,8 +49,6 @@ npm install miniprogram-xmlhttprequest-shim
 | `Blob`            | 浏览器原生 `Blob` / 小程序 polyfill 自适应                                                      |
 | `File`            | 浏览器原生 `File` / 小程序 polyfill 自适应                                                      |
 | `FormData`        | 浏览器原生 `FormData` / 小程序 polyfill 自适应                                                  |
-| `Cookie`          | 提供 `get()` / `set()` 方法，模拟 `document.cookie` 接口                                        |
-| `enableCookie`    | 初始化 Cookie 模块，传入当前站点 URL                                                            |
 | `setRequestFunc`  | 当无法自动检测到平台的 `request` API 时，手动指定请求函数                                       |
 
 > 设计要点：`XMLHttpRequest` 在浏览器中直接返回原生实现，在小程序中自动切换为 polyfill，同一套代码无需任何修改即可在浏览器和小程序中以 Web 标准方式运行。
@@ -130,25 +128,24 @@ xhr.send(new URLSearchParams({ q: "关键词", page: "1" }));
 
 ## Cookie 支持
 
-`Cookie.get()` 和 `Cookie.set()` 在小程序与浏览器中都能正常工作：
-
-- **在小程序中**：通过内置 Cookie 存储模拟浏览器行为。带有 `Max-Age` 或 `expires` 的 Cookie 会被持久化到缓存中，应用重启后可恢复；未设置过期时间的会话期 Cookie 不会被持久化，与浏览器行为一致。
-- **在浏览器中**：直接读写 `document.cookie`，与原生行为完全一致。
+```bash
+npm install miniprogram-cookie-shim
+```
 
 ```javascript
-import { enableCookie, Cookie } from "miniprogram-xmlhttprequest-shim";
+import { useCookie } from "miniprogram-xmlhttprequest-shim";
+import { Cookie, createAccessor } from "miniprogram-cookie-shim";
 
-// 初始化 Cookie（浏览器中可省略，小程序中需指定当前站点 URL）
-// enableCookie 可多次调用，重复调用仅更新基准 URL，不会产生副作用
-enableCookie("https://example.com");
+// 启用 Cookie 支持，之后所有请求将自动携带匹配的 Cookie
+// 跨域请求需设置 XMLHttpRequest#withCredentials = true
+useCookie(createAccessor("https://example.com"));
 
 // 读写 Cookie——与 document.cookie 的 setter/getter 语义一致
 Cookie.set("token=abc123; Max-Age=3600; Path=/");
 console.log(Cookie.get()); // "token=abc123"
-
-// 之后所有 XMLHttpRequest 请求将自动携带匹配的 Cookie
-// 跨域请求需设置 withCredentials = true
 ```
+
+> 详见 [miniprogram-cookie-shim](https://www.npmjs.com/package/miniprogram-cookie-shim)。
 
 > 浏览器中 `document.cookie` 实际定义在 `Document.prototype` 上，小程序没有 `Document` 构造函数，自然无法在原型上挂载。但如果你的运行环境提供了全局 `document` 对象（如 Taro.js 等跨端框架），可以通过以下方式将 Cookie 模拟实现挂载到实例属性上，达到类似效果：
 >

@@ -1,7 +1,8 @@
 import { suite } from "uvu";
 import * as assert from "uvu/assert";
 import { ui_rec, testConfig } from "./utils.js";
-import { Protagonist, fixXMLHttpRequest, Cookie, enableCookie } from "./exports.js";
+import { Cookie, createAccessor } from "miniprogram-cookie-shim";
+import { Protagonist, fixXMLHttpRequest, useCookie } from "./exports.js";
 
 const _name = "XMLHttpRequest";
 export const _test = suite(_name);
@@ -24,7 +25,7 @@ export function setXMLHttpRequestClass(XHRClass) {
     mp.XMLHttpRequest = /** @type {typeof globalThis.XMLHttpRequest} */ XHRClass;
 }
 
-enableCookie(testConfig.api_prefix);
+useCookie(createAccessor(testConfig.api_prefix));
 
 test("XMLHttpRequest basic GET request", async () => {
     let XMLHttpRequestClass = mp.XMLHttpRequest || (() => { throw new ReferenceError("XMLHttpRequest is not defined") })();
