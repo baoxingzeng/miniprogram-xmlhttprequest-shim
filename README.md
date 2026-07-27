@@ -50,6 +50,7 @@ npm install miniprogram-xmlhttprequest-shim
 | `File`            | 浏览器原生 `File` / 小程序 polyfill 自适应                                                      |
 | `FormData`        | 浏览器原生 `FormData` / 小程序 polyfill 自适应                                                  |
 | `setRequestFunc`  | 当无法自动检测到平台的 `request` API 时，手动指定请求函数                                       |
+| `setTextMode`     | 强制以文本模式发送请求，适用于不支持 ArrayBuffer 发送的小程序平台                               |
 
 > 设计要点：`XMLHttpRequest` 在浏览器中直接返回原生实现，在小程序中自动切换为 polyfill，同一套代码无需任何修改即可在浏览器和小程序中以 Web 标准方式运行。
 
@@ -261,6 +262,18 @@ setRequestFunc(wx.request); // 比如在某个类微信但没被自动识别的�
 ```
 
 > **支付宝小程序开发者注意**：支付宝官方将 `globalThis`、`window`、`document`、`XMLHttpRequest` 等浏览器内置对象名列为保留字，不应作为导入标识符使用，否则可能导致框架无法正常访问导入内容。如遇导入异常，可通过导入重命名规避，例如 `import { XMLHttpRequest as myXMLHttpRequest } from "..."`。
+
+### 文本模式 <!-- omit in toc -->
+
+部分小程序平台（如较早版本的百度小程序）的 `request` API 不支持发送 `ArrayBuffer`，导致 `Blob`、`FormData` 等二进制 body 无法正常上传。可通过 `setTextMode(true)` 强制将所有请求数据转为文本发送：
+
+```javascript
+import { setTextMode } from "miniprogram-xmlhttprequest-shim";
+
+setTextMode(true);
+```
+
+启用后，`ArrayBuffer` 类型的 body 会自动解码为字符串后再发起请求。此模式默认关闭，仅当遇到不支持 ArrayBuffer 发送的平台时手动启用。
 
 ## 开源协议
 

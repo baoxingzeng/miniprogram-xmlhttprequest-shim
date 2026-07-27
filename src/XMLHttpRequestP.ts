@@ -52,6 +52,9 @@ const enum XHRCycle {
 const mp = /*#__PURE__*/function () { return { request: getRequestFunc() }; }();
 export function setRequestFunc(request: unknown) { mp.request = request as TRequestFunc; }
 
+const textMode = { value: false };
+export function setTextMode(value: boolean) { textMode.value = !!value; }
+
 type TGetCookieFn = (url: string, withCredentials?: boolean) => string;
 type TSetCookieFn = (url: string, withCredentials?: boolean, cookies?: string | string[]) => void;
 
@@ -214,7 +217,7 @@ export class XMLHttpRequestP extends XMLHttpRequestEventTargetP implements XMLHt
         const request = (function (data?: string | ArrayBuffer) {
             if (requestId !== s.requestId) return;
             if (s.pos !== XHRCycle.LOADSTART && s.pos !== XHRCycle.UPLOAD_LOADEND) return;
-            options.data = data !== "" ? data : undefined;
+            options.data = data !== "" ? (data ? coerceBody(data) : data) : undefined;
             options.headers = options.header!;  // Alipay Mini Program
             s.requestTask = mp.request(options);
         }).bind(this);
@@ -293,6 +296,10 @@ function Headers_toDict(headers: Headers) {
     let dict: Record<string, string> = {};
     headers.forEach(function (value: string, name: string) { dict[name] = value; });
     return dict;
+}
+
+function coerceBody(data: string | ArrayBuffer) {
+    return (textMode.value && typeof data !== "string") ? decode(data) : data;
 }
 
 const responseTypes = ["", "arraybuffer", "blob", "document", "json", "text"];

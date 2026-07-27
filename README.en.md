@@ -48,6 +48,7 @@ npm install miniprogram-xmlhttprequest-shim
 | `File`            | Native in browsers / polyfill in mini programs                                                                         |
 | `FormData`        | Native in browsers / polyfill in mini programs                                                                         |
 | `setRequestFunc`  | Manually specifies the request function when the platform's `request` API cannot be auto-detected                      |
+| `setTextMode`     | Forces text mode for all requests, useful for platforms that do not support sending ArrayBuffer                        |
 
 > **Key design**: `XMLHttpRequest` passes through to the native implementation in browsers and switches to polyfill in mini programs. The same code runs in both environments without modification, following web standards.
 
@@ -259,6 +260,18 @@ setRequestFunc(wx.request); // e.g., in a WeChat-like environment that wasn't au
 ```
 
 > **For Alipay Mini Program developers**: Alipay reserves browser built-in names such as `globalThis`, `window`, `document`, and `XMLHttpRequest` as keywords. Using them as import identifiers may prevent the framework from accessing imported content correctly. If you encounter import errors, use import aliasing as a workaround, e.g., `import { XMLHttpRequest as myXMLHttpRequest } from "..."`.
+
+### TextMode <!-- omit in toc -->
+
+Some mini program platforms (e.g., earlier versions of Baidu Smart Mini Programs) do not support sending `ArrayBuffer` via their `request` API. This can prevent binary bodies such as `Blob` and `FormData` from being uploaded. You can call `setTextMode(true)` to force all request data to be sent as text:
+
+```javascript
+import { setTextMode } from "miniprogram-xmlhttprequest-shim";
+
+setTextMode(true);
+```
+
+When enabled, `ArrayBuffer`-typed bodies are automatically decoded to strings before sending. This mode is disabled by default and should only be enabled when encountering a platform that does not support ArrayBuffer sending.
 
 ## License
 
