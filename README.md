@@ -11,11 +11,12 @@ XMLHttpRequest polyfill for multi-platform mini programs，为小程序提供符
 - [安装](#安装)
 - [API](#api)
 - [快速开始](#快速开始)
-- [Cookie 支持](#cookie-支持)
 - [超时设置](#超时设置)
 - [事件处理](#事件处理)
 - [兼容性](#兼容性)
+- [Cookie 支持](#cookie-支持)
 - [平台集成](#平台集成)
+- [文本模式](#文本模式)
 - [开源协议](#开源协议)
 
 ## 小程序支持
@@ -127,47 +128,6 @@ xhr.send(new URLSearchParams({ q: "关键词", page: "1" }));
 
 > `send()` 的 body 参数支持 `string`、`ArrayBuffer`、`TypedArray`、`DataView`、`URLSearchParams`、`Blob`、`FormData` 等类型。内部通过特征判断，因此也兼容其他符合 Web 标准的实现。
 
-## Cookie 支持
-
-```bash
-npm install miniprogram-cookie-shim
-```
-
-```javascript
-import { useCookie } from "miniprogram-xmlhttprequest-shim";
-import { Cookie, createAccessor } from "miniprogram-cookie-shim";
-
-// 启用 Cookie 支持，之后所有请求将自动携带匹配的 Cookie
-// 跨域请求需设置 XMLHttpRequest#withCredentials = true
-useCookie(createAccessor("https://example.com"));
-
-// 读写 Cookie——与 document.cookie 的 setter/getter 语义一致
-Cookie.set("token=abc123; Max-Age=3600; Path=/");
-console.log(Cookie.get()); // "token=abc123"
-```
-
-> 详见 [miniprogram-cookie-shim](https://www.npmjs.com/package/miniprogram-cookie-shim)。
-
-> 浏览器中 `document.cookie` 实际定义在 `Document.prototype` 上，小程序没有 `Document` 构造函数，自然无法在原型上挂载。但如果你的运行环境提供了全局 `document` 对象（如 Taro.js 等跨端框架），可以通过以下方式将 Cookie 模拟实现挂载到实例属性上，达到类似效果：
->
-> ```javascript
-> if (typeof document === "object" && document && !("cookie" in document)) {
->     Object.defineProperty(document, "cookie", {
->         configurable: true,
->         enumerable: true,
->         get: Cookie.get,
->         set: Cookie.set,
->     });
-> }
-> ```
->
-> 如果上述代码成功执行，之后即可像在浏览器中一样操作 `document.cookie`：
->
-> ```javascript
-> document.cookie = "token=abc123; Max-Age=3600; Path=/";
-> console.log(document.cookie); // "token=abc123"
-> ```
-
 ## 超时设置
 
 ```javascript
@@ -247,6 +207,47 @@ xhr.onreadystatechange = () => {
 | onabort            | ✔    | 请求被中止时触发      |
 | ontimeout          | ✔    | 请求超时时触发        |
 
+## Cookie 支持
+
+```bash
+npm install miniprogram-cookie-shim
+```
+
+```javascript
+import { useCookie } from "miniprogram-xmlhttprequest-shim";
+import { Cookie, createAccessor } from "miniprogram-cookie-shim";
+
+// 启用 Cookie 支持，之后所有请求将自动携带匹配的 Cookie
+// 跨域请求需设置 XMLHttpRequest#withCredentials = true
+useCookie(createAccessor("https://example.com"));
+
+// 读写 Cookie——与 document.cookie 的 setter/getter 语义一致
+Cookie.set("token=abc123; Max-Age=3600; Path=/");
+console.log(Cookie.get()); // "token=abc123"
+```
+
+> 详见 [miniprogram-cookie-shim](https://www.npmjs.com/package/miniprogram-cookie-shim)。
+
+> 浏览器中 `document.cookie` 实际定义在 `Document.prototype` 上，小程序没有 `Document` 构造函数，自然无法在原型上挂载。但如果你的运行环境提供了全局 `document` 对象（如 Taro.js 等跨端框架），可以通过以下方式将 Cookie 模拟实现挂载到实例属性上，达到类似效果：
+>
+> ```javascript
+> if (typeof document === "object" && document && !("cookie" in document)) {
+>     Object.defineProperty(document, "cookie", {
+>         configurable: true,
+>         enumerable: true,
+>         get: Cookie.get,
+>         set: Cookie.set,
+>     });
+> }
+> ```
+>
+> 如果上述代码成功执行，之后即可像在浏览器中一样操作 `document.cookie`：
+>
+> ```javascript
+> document.cookie = "token=abc123; Max-Age=3600; Path=/";
+> console.log(document.cookie); // "token=abc123"
+> ```
+
 ## 平台集成
 
 自动检测运行环境（微信、支付宝、百度、字节跳动、QQ、快手、京东、小红书等），并使用对应平台的 `request` API 发起网络请求，无需手动配置。
@@ -263,9 +264,9 @@ setRequestFunc(wx.request); // 比如在某个类微信但没被自动识别的�
 
 > **支付宝小程序开发者注意**：支付宝官方将 `globalThis`、`window`、`document`、`XMLHttpRequest` 等浏览器内置对象名列为保留字，不应作为导入标识符使用，否则可能导致框架无法正常访问导入内容。如遇导入异常，可通过导入重命名规避，例如 `import { XMLHttpRequest as myXMLHttpRequest } from "..."`。
 
-### 文本模式 <!-- omit in toc -->
+## 文本模式
 
-部分小程序平台（如较早版本的百度小程序）的 `request` API 不支持发送 `ArrayBuffer`，导致 `Blob`、`FormData` 等二进制 body 无法正常上传。可通过 `setTextMode(true)` 强制将所有请求数据转为文本发送：
+部分小程序平台（如较早版本的百度小程序）的 `request` API 不支持发送 `ArrayBuffer`，导致 `Blob`、`FormData` 等二进制 body 无法正常上传。可通过 `setTextMode(true)` 强制将所有请求数据转为字符串发送：
 
 ```javascript
 import { setTextMode } from "miniprogram-xmlhttprequest-shim";
@@ -273,7 +274,7 @@ import { setTextMode } from "miniprogram-xmlhttprequest-shim";
 setTextMode(true);
 ```
 
-启用后，`ArrayBuffer` 类型的 body 会自动解码为字符串后再发起请求。此模式默认关闭，仅当遇到不支持 ArrayBuffer 发送的平台时手动启用。
+启用后，`ArrayBuffer` 类型的 body 会自动解码为字符串后再发起请求。此模式默认关闭，请仅在遇到不支持 ArrayBuffer 发送的平台时进行设置。
 
 ## 开源协议
 

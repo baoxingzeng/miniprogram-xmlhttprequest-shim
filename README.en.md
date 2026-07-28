@@ -9,11 +9,12 @@ A W3C-compliant XMLHttpRequest polyfill for multi-platform mini programs. Write 
 - [Installation](#installation)
 - [API](#api)
 - [Quick Start](#quick-start)
-- [Cookie Support](#cookie-support)
 - [Timeout](#timeout)
 - [Event Handling](#event-handling)
 - [Compatibility](#compatibility)
+- [Cookie Support](#cookie-support)
 - [Platform Integration](#platform-integration)
+- [TextMode](#textmode)
 - [License](#license)
 
 ## Mini-Program Support
@@ -125,47 +126,6 @@ xhr.send(new URLSearchParams({ q: "keyword", page: "1" }));
 
 > The `send()` body parameter supports `string`, `ArrayBuffer`, `TypedArray`, `DataView`, `URLSearchParams`, `Blob`, `FormData`, and other types. Detection is based on feature checks, so other web-compatible implementations are also supported.
 
-## Cookie Support
-
-```bash
-npm install miniprogram-cookie-shim
-```
-
-```javascript
-import { useCookie } from "miniprogram-xmlhttprequest-shim";
-import { Cookie, createAccessor } from "miniprogram-cookie-shim";
-
-// Enable cookie support; all subsequent requests will automatically include matching cookies.
-// Set XMLHttpRequest#withCredentials = true for cross-origin requests.
-useCookie(createAccessor("https://example.com"));
-
-// Read and write cookies—same semantics as document.cookie getter/setter
-Cookie.set("token=abc123; Max-Age=3600; Path=/");
-console.log(Cookie.get()); // "token=abc123"
-```
-
-> See [miniprogram-cookie-shim](https://www.npmjs.com/package/miniprogram-cookie-shim) for details.
-
-> In browsers, `document.cookie` is defined on `Document.prototype`. Mini programs have no `Document` constructor, so prototype-level mounting is not possible. However, if your runtime provides a global `document` object (e.g., Taro.js or similar cross-platform frameworks), you can mount the cookie implementation onto the instance property for a similar effect:
->
-> ```javascript
-> if (typeof document === "object" && document && !("cookie" in document)) {
->     Object.defineProperty(document, "cookie", {
->         configurable: true,
->         enumerable: true,
->         get: Cookie.get,
->         set: Cookie.set,
->     });
-> }
-> ```
->
-> Once the above code runs successfully, you can operate on `document.cookie` just as you would in a browser:
->
-> ```javascript
-> document.cookie = "token=abc123; Max-Age=3600; Path=/";
-> console.log(document.cookie); // "token=abc123"
-> ```
-
 ## Timeout
 
 ```javascript
@@ -245,6 +205,47 @@ xhr.onreadystatechange = () => {
 | onabort            |     ✔     | Fires when the request is aborted                    |
 | ontimeout          |     ✔     | Fires when the request times out                     |
 
+## Cookie Support
+
+```bash
+npm install miniprogram-cookie-shim
+```
+
+```javascript
+import { useCookie } from "miniprogram-xmlhttprequest-shim";
+import { Cookie, createAccessor } from "miniprogram-cookie-shim";
+
+// Enable cookie support; all subsequent requests will automatically include matching cookies.
+// Set XMLHttpRequest#withCredentials = true for cross-origin requests.
+useCookie(createAccessor("https://example.com"));
+
+// Read and write cookies—same semantics as document.cookie getter/setter
+Cookie.set("token=abc123; Max-Age=3600; Path=/");
+console.log(Cookie.get()); // "token=abc123"
+```
+
+> See [miniprogram-cookie-shim](https://www.npmjs.com/package/miniprogram-cookie-shim) for details.
+
+> In browsers, `document.cookie` is defined on `Document.prototype`. Mini programs have no `Document` constructor, so prototype-level mounting is not possible. However, if your runtime provides a global `document` object (e.g., Taro.js or similar cross-platform frameworks), you can mount the cookie implementation onto the instance property for a similar effect:
+>
+> ```javascript
+> if (typeof document === "object" && document && !("cookie" in document)) {
+>     Object.defineProperty(document, "cookie", {
+>         configurable: true,
+>         enumerable: true,
+>         get: Cookie.get,
+>         set: Cookie.set,
+>     });
+> }
+> ```
+>
+> Once the above code runs successfully, you can operate on `document.cookie` just as you would in a browser:
+>
+> ```javascript
+> document.cookie = "token=abc123; Max-Age=3600; Path=/";
+> console.log(document.cookie); // "token=abc123"
+> ```
+
 ## Platform Integration
 
 Automatically detects the runtime environment (WeChat, Alipay, Baidu, ByteDance, QQ, Kwai, JD, RedNote, etc.) and uses the corresponding platform's `request` API to make network calls—no manual configuration required.
@@ -261,9 +262,9 @@ setRequestFunc(wx.request); // e.g., in a WeChat-like environment that wasn't au
 
 > **For Alipay Mini Program developers**: Alipay reserves browser built-in names such as `globalThis`, `window`, `document`, and `XMLHttpRequest` as keywords. Using them as import identifiers may prevent the framework from accessing imported content correctly. If you encounter import errors, use import aliasing as a workaround, e.g., `import { XMLHttpRequest as myXMLHttpRequest } from "..."`.
 
-### TextMode <!-- omit in toc -->
+## TextMode
 
-Some mini program platforms (e.g., earlier versions of Baidu Smart Mini Programs) do not support sending `ArrayBuffer` via their `request` API. This can prevent binary bodies such as `Blob` and `FormData` from being uploaded. You can call `setTextMode(true)` to force all request data to be sent as text:
+Some mini program platforms (e.g., earlier versions of Baidu Smart Mini Program) do not support sending `ArrayBuffer` via their `request` API. This can prevent binary bodies such as `Blob` and `FormData` from being uploaded. You can call `setTextMode(true)` to force all request data to be sent as strings:
 
 ```javascript
 import { setTextMode } from "miniprogram-xmlhttprequest-shim";
