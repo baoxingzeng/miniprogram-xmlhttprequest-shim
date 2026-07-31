@@ -50,7 +50,9 @@ const enum XHRCycle {
 };
 
 const mp = /*#__PURE__*/function () { return { request: getRequestFunc() }; }();
-export function setRequestFunc(request: unknown) { mp.request = request as TRequestFunc; }
+export function setRequestFunc(request: unknown, thisArg?: any) {
+    mp.request = (typeof request === "function" && thisArg !== undefined) ? request.bind(thisArg) : request as TRequestFunc;
+}
 
 const textMode = { value: false };
 export function setTextMode(value: boolean) { textMode.value = !!value; }
