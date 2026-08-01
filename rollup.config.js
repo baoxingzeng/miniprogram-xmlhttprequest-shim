@@ -15,7 +15,8 @@ export default [
         },
         external: [
             "fetch-xhr-shim",
-            "fetch-xhr-shim/dev",
+            "fetch-xhr-shim/helpers",
+            "fetch-xhr-shim/internal",
             "miniprogram-platform",
         ],
         plugins: [
@@ -78,7 +79,8 @@ export default [
         },
         external: [
             "fetch-xhr-shim",
-            "fetch-xhr-shim/dev",
+            "fetch-xhr-shim/helpers",
+            "fetch-xhr-shim/internal",
             "miniprogram-platform",
         ],
         plugins: [

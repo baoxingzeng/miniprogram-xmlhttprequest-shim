@@ -1,4 +1,4 @@
-import { _Symbol, setState } from "fetch-xhr-shim/dev";
+import { _Symbol, setState } from "fetch-xhr-shim/internal";
 import { XMLHttpRequestEventTargetP, XMLHttpRequestEventTargetState } from "./XMLHttpRequestEventTargetP";
 
 export class XMLHttpRequestUploadP extends XMLHttpRequestEventTargetP implements XMLHttpRequestUpload {

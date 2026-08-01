@@ -39,7 +39,7 @@
     "polyfill"
   ],
   "dependencies": {
-    "fetch-xhr-shim": ">=1.1.0",
+    "fetch-xhr-shim": "^1.1.9-beta",
     "miniprogram-platform": ">=1.1.0"
   },
   "devDependencies": {

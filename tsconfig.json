@@ -12,8 +12,11 @@
     "target": "es6",
     "types": [],
     "paths": {
-      "fetch-xhr-shim/dev": [
-        "./node_modules/fetch-xhr-shim/dist/dev.d.ts"
+      "fetch-xhr-shim/helpers": [
+        "./node_modules/fetch-xhr-shim/dist/helpers.d.ts"
+      ],
+      "fetch-xhr-shim/internal": [
+        "./node_modules/fetch-xhr-shim/dist/internal.d.ts"
       ]
     },
     // For nodejs:

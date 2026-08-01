@@ -1,21 +1,24 @@
 import { EventP, Blob, Headers } from "fetch-xhr-shim";
 import {
-    _Symbol,
     DOMException,
+    Payload,
+    isArrayBuffer,
+    Uint8Array_toBase64
+} from "fetch-xhr-shim/helpers";
+import {
+    _Symbol,
     setState,
     checkArgsLength,
+    normalizeMethod,
     encode,
     decode,
+    coerceBody,
     attachFn,
     executeFn,
     emitProgressEvent,
     Event_setTrusted,
-    EventTarget_dispatchEvent,
-    Payload,
-    normalizeMethod,
-    isArrayBuffer,
-    Uint8Array_toBase64
-} from "fetch-xhr-shim/dev";
+    EventTarget_dispatchEvent
+} from "fetch-xhr-shim/internal";
 import type {
     TRequestFunc,
     IRequestOptions,
@@ -53,9 +56,6 @@ const mp = /*#__PURE__*/function () { return { request: getRequestFunc() }; }();
 export function setRequestFunc(request: unknown, thisArg?: any) {
     mp.request = (typeof request === "function" && thisArg !== undefined) ? request.bind(thisArg) : request as TRequestFunc;
 }
-
-const textMode = { value: false };
-export function setTextMode(value: boolean) { textMode.value = !!value; }
 
 type TGetCookieFn = (url: string, withCredentials?: boolean) => string;
 type TSetCookieFn = (url: string, withCredentials?: boolean, cookies?: string | string[]) => void;
@@ -298,10 +298,6 @@ function Headers_toDict(headers: Headers) {
     let dict: Record<string, string> = {};
     headers.forEach(function (value: string, name: string) { dict[name] = value; });
     return dict;
-}
-
-function coerceBody(data: string | ArrayBuffer) {
-    return (textMode.value && typeof data !== "string") ? decode(data) : data;
 }
 
 const responseTypes = ["", "arraybuffer", "blob", "document", "json", "text"];

@@ -1,5 +1,5 @@
 import { EventTargetP } from "fetch-xhr-shim";
-import { _Symbol, setState, attachFn, executeFn } from "fetch-xhr-shim/dev";
+import { _Symbol, setState, attachFn, executeFn } from "fetch-xhr-shim/internal";
 
 export class XMLHttpRequestEventTargetP extends EventTargetP implements XMLHttpRequestEventTarget {
     /** @internal */
