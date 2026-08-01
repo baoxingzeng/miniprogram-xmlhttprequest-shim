@@ -7,7 +7,7 @@ import { nodeResolve } from "@rollup/plugin-node-resolve";
 export default [
     // CommonJS
     {
-        input: ["src/index.ts", "src/dev.ts"],
+        input: ["src/index.ts", "src/helpers.ts", "src/internal.ts"],
         output: {
             dir: "dist/cjs",
             format: "cjs",
@@ -71,7 +71,7 @@ export default [
 
     // ES6
     {
-        input: ["src/index.ts", "src/dev.ts"],
+        input: ["src/index.ts", "src/helpers.ts", "src/internal.ts"],
         output: {
             dir: "dist/esm",
             format: "es",
@@ -133,6 +133,49 @@ export default [
         ],
     },
 
+    // UMD (polyfill singlefile)
+    {
+        input: "src/polyfill.ts",
+        output: {
+            file: "dist/miniprogram-xmlhttprequest-shim.umd.js",
+            format: "umd",
+            name: "MPXHR",
+        },
+        plugins: [
+            typescript({
+                declarationDir: "dist/types",
+                moduleResolution: "bundler",
+            }),
+            nodeResolve(),
+            babel({
+                babelHelpers: "bundled",
+                extensions: [".js", ".jsx", ".es6", ".es", ".mjs", ".ts", ".tsx"],
+            }),
+        ],
+    },
+
+    // UMD (polyfill singlefile, minimized)
+    {
+        input: "src/polyfill.ts",
+        output: {
+            file: "dist/miniprogram-xmlhttprequest-shim.umd.min.js",
+            format: "umd",
+            name: "MPXHR",
+        },
+        plugins: [
+            typescript({
+                declarationDir: "dist/types",
+                moduleResolution: "bundler",
+            }),
+            nodeResolve(),
+            babel({
+                babelHelpers: "bundled",
+                extensions: [".js", ".jsx", ".es6", ".es", ".mjs", ".ts", ".tsx"],
+            }),
+            terser(),
+        ],
+    },
+
     // Types
     {
         input: "dist/esm/types/index.d.ts",
@@ -143,11 +186,21 @@ export default [
         plugins: [dts()],
     },
 
-    // Types (dev)
+    // Types (helpers)
     {
-        input: "dist/esm/types/dev.d.ts",
+        input: "dist/esm/types/helpers.d.ts",
         output: {
-            file: "dist/dev.d.ts",
+            file: "dist/helpers.d.ts",
+            format: "es",
+        },
+        plugins: [dts()],
+    },
+
+    // Types (internal)
+    {
+        input: "dist/esm/types/internal.d.ts",
+        output: {
+            file: "dist/internal.d.ts",
             format: "es",
         },
         plugins: [dts()],

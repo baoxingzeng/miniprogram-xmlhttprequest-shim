@@ -1,6 +1,6 @@
 {
   "name": "miniprogram-xmlhttprequest-shim",
-  "version": "1.1.0",
+  "version": "1.1.9-beta",
   "license": "MIT",
   "author": "Xingzeng Bao",
   "homepage": "https://github.com/baoxingzeng/miniprogram-xmlhttprequest-shim",
@@ -8,10 +8,14 @@
   "type": "module",
   "main": "dist/miniprogram-xmlhttprequest-shim.cjs.js",
   "module": "dist/miniprogram-xmlhttprequest-shim.esm.js",
+  "unpkg": "dist/miniprogram-xmlhttprequest-shim.umd.js",
+  "jsdelivr": "dist/miniprogram-xmlhttprequest-shim.umd.js",
   "types": "dist/index.d.ts",
   "files": [
     "README.md",
     "dist",
+    "helpers",
+    "internal",
     "!dist/types/**/*",
     "!dist/cjs/types/**/*",
     "!dist/esm/types/**/*"
@@ -22,10 +26,15 @@
       "import": "./dist/esm/index.js",
       "types": "./dist/index.d.ts"
     },
-    "./dev": {
-      "require": "./dist/cjs/dev.js",
-      "import": "./dist/esm/dev.js",
-      "types": "./dist/dev.d.ts"
+    "./helpers": {
+      "require": "./dist/cjs/helpers.js",
+      "import": "./dist/esm/helpers.js",
+      "types": "./dist/helpers.d.ts"
+    },
+    "./internal": {
+      "require": "./dist/cjs/internal.js",
+      "import": "./dist/esm/internal.js",
+      "types": "./dist/internal.d.ts"
     }
   },
   "sideEffects": false,
@@ -40,7 +49,7 @@
   ],
   "dependencies": {
     "fetch-xhr-shim": "^1.1.9-beta",
-    "miniprogram-platform": ">=1.1.0"
+    "miniprogram-platform": "^1.1.9-beta"
   },
   "devDependencies": {
     "@babel/core": "^7.29.7",

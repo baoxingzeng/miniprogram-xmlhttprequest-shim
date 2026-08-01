@@ -52,7 +52,7 @@ const enum XHRCycle {
     LOADEND
 };
 
-const mp = /*#__PURE__*/function () { return { request: getRequestFunc() }; }();
+const mp = { request: /*#__PURE__*/getRequestFunc() };
 export function setRequestFunc(request: unknown, thisArg?: any) {
     mp.request = (typeof request === "function" && thisArg !== undefined) ? request.bind(thisArg) : request as TRequestFunc;
 }
@@ -590,5 +590,5 @@ function execLoadend(xhr: XMLHttpRequestP, contentLength = 0) {
     emitProgressEvent(xhr, "loadend", contentLength, contentLength);
 }
 
-const XMLHttpRequestE = (typeof XMLHttpRequest !== "undefined" && XMLHttpRequest) as typeof XMLHttpRequest || XMLHttpRequestP;
+const XMLHttpRequestE = /*#__PURE__*/function () { return (typeof XMLHttpRequest !== "undefined" && XMLHttpRequest) as typeof XMLHttpRequest || XMLHttpRequestP; }();
 export { XMLHttpRequestE as XMLHttpRequest };

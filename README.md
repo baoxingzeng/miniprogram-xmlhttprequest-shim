@@ -221,7 +221,7 @@ import { Cookie, createAccessor } from "miniprogram-cookie-shim";
 // 跨域请求需设置 XMLHttpRequest#withCredentials = true
 useCookie(createAccessor("https://example.com"));
 
-// 读写 Cookie——与 document.cookie 的 setter/getter 语义一致
+// 读写 Cookie —— 与 document.cookie 的 getter/setter 语义一致
 Cookie.set("token=abc123; Max-Age=3600; Path=/");
 console.log(Cookie.get()); // "token=abc123"
 ```

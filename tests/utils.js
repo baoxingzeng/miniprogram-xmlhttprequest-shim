@@ -19,17 +19,6 @@ export const testConfig = {
 };
 
 /**
- * @template T
- * @param {string} name 
- * @param {unknown} value
- * @returns {value is T}
- */
-export function isTargetType(name, value) {
-    let expect = `[object ${name}]`;
-    return Object.prototype.toString.call(value) === expect || String(value) === expect;
-}
-
-/**
  * @type {{ value: Map<string, [boolean, string][]> }}
  */
 const results = { value: new Map() };

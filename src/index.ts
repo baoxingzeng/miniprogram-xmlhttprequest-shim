@@ -1,4 +1,4 @@
-export { setTextMode } from "fetch-xhr-shim";
+export { setTextMode, fixXMLHttpRequest } from "fetch-xhr-shim";
 export { URLSearchParams, URLSearchParamsP } from "fetch-xhr-shim";
 export { Blob, BlobP } from "fetch-xhr-shim";
 export { File, FileP } from "fetch-xhr-shim";

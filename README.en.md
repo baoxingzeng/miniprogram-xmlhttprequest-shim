@@ -219,7 +219,7 @@ import { Cookie, createAccessor } from "miniprogram-cookie-shim";
 // Set XMLHttpRequest#withCredentials = true for cross-origin requests.
 useCookie(createAccessor("https://example.com"));
 
-// Read and write cookies—same semantics as document.cookie getter/setter
+// Read and write cookies — same semantics as document.cookie getter/setter
 Cookie.set("token=abc123; Max-Age=3600; Path=/");
 console.log(Cookie.get()); // "token=abc123"
 ```
