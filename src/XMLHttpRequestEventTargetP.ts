@@ -8,7 +8,6 @@ export class XMLHttpRequestEventTargetP extends EventTargetP implements XMLHttpR
         if (this.constructor === XMLHttpRequestEventTargetP) {
             throw new TypeError("Failed to construct 'XMLHttpRequestEventTarget': Illegal constructor");
         }
-
         setState(this, "__XMLHttpRequestEventTarget__", new XMLHttpRequestEventTargetState(this));
     }
 
@@ -44,7 +43,6 @@ export class XMLHttpRequestEventTargetState {
     constructor(target: XMLHttpRequestEventTarget) {
         this.attach = attachFn<XMLHttpRequestEventTarget, keyof XMLHttpRequestEventTargetEventMap>(target, getHandlers(target));
     }
-
     attach: (type: keyof XMLHttpRequestEventTargetEventMap) => void;
     onabort: ((this: XMLHttpRequest, ev: ProgressEvent) => any) | null = null;
     onerror: ((this: XMLHttpRequest, ev: ProgressEvent) => any) | null = null;

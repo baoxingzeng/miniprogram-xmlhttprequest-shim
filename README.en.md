@@ -78,7 +78,6 @@ import { XMLHttpRequest } from "miniprogram-xmlhttprequest-shim";
 
 const xhr = new XMLHttpRequest();
 xhr.open("POST", "https://example.com/api/user");
-
 xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 
 xhr.onreadystatechange = () => {
