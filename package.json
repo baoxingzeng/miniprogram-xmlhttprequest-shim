@@ -1,6 +1,6 @@
 {
   "name": "miniprogram-xmlhttprequest-shim",
-  "version": "1.1.9-beta",
+  "version": "1.2.0",
   "license": "MIT",
   "author": "Xingzeng Bao",
   "homepage": "https://github.com/baoxingzeng/miniprogram-xmlhttprequest-shim",
@@ -48,8 +48,8 @@
     "polyfill"
   ],
   "dependencies": {
-    "fetch-xhr-shim": "^1.1.9-beta",
-    "miniprogram-platform": "^1.1.9-beta"
+    "fetch-xhr-shim": "^1.2.0",
+    "miniprogram-platform": "^1.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.29.7",
